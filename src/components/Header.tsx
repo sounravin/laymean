@@ -3,7 +3,6 @@ import { LedgerStats, Borrower } from '../types';
 import { formatMoney } from '../utils';
 import { DollarSign, Percent, TrendingUp, Users, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '../i18n';
-import NotificationBell from './NotificationBell';
 
 interface HeaderProps {
   stats: LedgerStats;
@@ -69,9 +68,6 @@ export default function Header({
               <span>{t('langEnglish')}</span>
             </button>
           </div>
-
-          {/* Desktop Payment Notification Bell */}
-          <NotificationBell borrowers={borrowers} onSelectBorrower={onSelectBorrower} />
 
           <input
             type="file"

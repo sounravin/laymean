@@ -14,6 +14,7 @@ import { collection, query, where, onSnapshot, doc, setDoc, deleteDoc, writeBatc
 import { db } from './lib/firebase';
 import { useLanguage } from './i18n';
 import { motion, AnimatePresence } from 'motion/react';
+import { SignInForm, RegisterForm, ForgotPasswordForm } from './components/AuthForms';
 
 const LOCAL_STORAGE_KEY = 'luypay_ledger_borrowers';
 
@@ -466,12 +467,11 @@ export default function App() {
 
 
 
-  const handleCredentialsLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const cleanUsername = loginUsername.trim().toLowerCase();
+  const handleCredentialsLogin = async (usernameInput: string, passwordInput: string) => {
+    const cleanUsername = usernameInput.trim().toLowerCase();
     
     // 1. Check default admin
-    if (cleanUsername === 'sounravin' && loginPassword === 'Ravin012348981') {
+    if (cleanUsername === 'sounravin' && passwordInput === 'Ravin012348981') {
       localStorage.setItem('luypay_logged_in', 'true');
       localStorage.setItem('luypay_current_user', 'sounravin');
       localStorage.setItem('luypay_user_display_name', 'Soun Ravin');
@@ -496,7 +496,7 @@ export default function App() {
           setLoginError(language === 'kh' ? 'គណនីរបស់អ្នកត្រូវបានផ្អាកជាបណ្ដោះអាសន្ន! សូមទាក់ទងមកកាន់អ្នកគ្រប់គ្រង។' : 'Your account has been temporarily suspended! Please contact the administrator.');
           return;
         }
-        if (memberData.password === loginPassword) {
+        if (memberData.password === passwordInput) {
           localStorage.setItem('luypay_logged_in', 'true');
           localStorage.setItem('luypay_current_user', cleanUsername);
           localStorage.setItem('luypay_user_display_name', memberData.displayName || cleanUsername);
@@ -524,7 +524,7 @@ export default function App() {
           setLoginError(language === 'kh' ? 'គណនីរបស់អ្នកត្រូវបានផ្អាកជាបណ្ដោះអាសន្ន! សូមទាក់ទងមកកាន់អ្នកគ្រប់គ្រង។' : 'Your account has been temporarily suspended! Please contact the administrator.');
           return;
         }
-        if (localMember.password === loginPassword) {
+        if (localMember.password === passwordInput) {
           localStorage.setItem('luypay_logged_in', 'true');
           localStorage.setItem('luypay_current_user', cleanUsername);
           localStorage.setItem('luypay_user_display_name', localMember.displayName || cleanUsername);
@@ -544,11 +544,10 @@ export default function App() {
     setLoginError('ឈ្មោះអ្នកប្រើប្រាស់ ឬលេខកូដសម្ងាត់មិនត្រឹមត្រូវឡើយ!');
   };
 
-  const handleMemberRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const cleanUsername = regUsername.trim().toLowerCase();
-    const cleanEmail = regEmail.trim().toLowerCase();
-    const cleanPassword = regPassword;
+  const handleMemberRegister = async (usernameInput: string, emailInput: string, passwordInput: string) => {
+    const cleanUsername = usernameInput.trim().toLowerCase();
+    const cleanEmail = emailInput.trim().toLowerCase();
+    const cleanPassword = passwordInput;
 
     if (!cleanUsername || !cleanEmail || !cleanPassword) {
       setRegError('សូមបំពេញព័ត៌មានឱ្យបានគ្រប់គ្រាន់!');
@@ -583,7 +582,7 @@ export default function App() {
         username: cleanUsername,
         email: cleanEmail,
         password: cleanPassword,
-        displayName: regUsername.trim(),
+        displayName: usernameInput.trim(),
         createdAt: new Date().toISOString(),
         invitesCount: 0,
         inviteLink: `${window.location.origin}/?ref=${cleanUsername}`
@@ -602,13 +601,13 @@ export default function App() {
       // Automatically login
       localStorage.setItem('luypay_logged_in', 'true');
       localStorage.setItem('luypay_current_user', cleanUsername);
-      localStorage.setItem('luypay_user_display_name', regUsername.trim());
+      localStorage.setItem('luypay_user_display_name', usernameInput.trim());
       localStorage.setItem('luypay_auth_type', 'credentials');
       localStorage.setItem('luypay_is_member', 'true');
 
       setIsLoggedIn(true);
       setCurrentUser(cleanUsername);
-      setUserDisplayName(regUsername.trim());
+      setUserDisplayName(usernameInput.trim());
       setUserAuthType('credentials');
       setIsMember(true);
       
@@ -627,14 +626,14 @@ export default function App() {
     }
   };
 
-  const handleForgotPasswordRequest = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const cleanEmail = forgotEmail.trim().toLowerCase();
+  const handleForgotPasswordRequest = async (emailInput: string) => {
+    const cleanEmail = emailInput.trim().toLowerCase();
     if (!cleanEmail || !cleanEmail.includes('@')) {
       setForgotError('សូមបញ្ចូលអាសយដ្ឋានអ៊ីមែលឱ្យបានត្រឹមត្រូវ!');
       return;
     }
 
+    setForgotEmail(cleanEmail);
     setAuthLoading(true);
     setForgotError('');
 
@@ -684,9 +683,8 @@ export default function App() {
     }
   };
 
-  const handleForgotPasswordVerify = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (enteredCode.trim() === verificationCode || enteredCode.trim() === '123456') {
+  const handleForgotPasswordVerify = (codeInput: string) => {
+    if (codeInput.trim() === verificationCode || codeInput.trim() === '123456') {
       setResetStep('new_password');
       setForgotError('');
       showToast('កូដផ្ទៀងផ្ទាត់ត្រឹមត្រូវ! សូមកំណត់លេខកូដសម្ងាត់ថ្មីរបស់អ្នក។', 'success');
@@ -695,9 +693,8 @@ export default function App() {
     }
   };
 
-  const handleForgotPasswordReset = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const cleanPassword = newPassword;
+  const handleForgotPasswordReset = async (newPasswordInput: string) => {
+    const cleanPassword = newPasswordInput;
     if (cleanPassword.length < 4) {
       setForgotError('លេខកូដសម្ងាត់ថ្មីត្រូវមានយ៉ាងហោចណាស់ ៤ តួអក្សរ!');
       return;
@@ -1826,7 +1823,7 @@ export default function App() {
               stiffness: 110,
               damping: 16,
             }}
-            className="w-full max-w-md bg-slate-900/50 backdrop-blur-2xl border border-slate-800/80 rounded-3xl p-8 shadow-[0_20px_50px_rgba(0,0,0,0.6),_0_0_80px_rgba(37,99,235,0.06)] space-y-6 relative overflow-hidden"
+            className="w-full max-w-md bg-slate-900/50 backdrop-blur-2xl border border-slate-800/80 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.6),_0_0_80px_rgba(37,99,235,0.06)] space-y-5 sm:space-y-6 relative overflow-hidden"
           >
             {/* Top Glowing Trace Bar */}
             <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-blue-500 via-purple-500 to-emerald-500" />
@@ -1870,76 +1867,19 @@ export default function App() {
                     </p>
                   </div>
 
-                  <form onSubmit={handleCredentialsLogin} className="space-y-4">
-                    <div className="space-y-1.5">
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider">{t('usernameLabel')}</label>
-                      <div className="relative group">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none select-none transition-transform group-focus-within:scale-110">👤</span>
-                        <input
-                          type="text"
-                          value={loginUsername}
-                          onChange={(e) => {
-                            setLoginUsername(e.target.value);
-                            setLoginError('');
-                          }}
-                          placeholder={language === 'kh' ? 'បញ្ចូលឈ្មោះអ្នកប្រើប្រាស់' : 'Enter username'}
-                          className="w-full pl-11 pr-4 py-2.5 text-xs bg-slate-950/70 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-white font-bold transition duration-200"
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between">
-                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider">{t('passwordLabel')}</label>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setLoginMode('forgot_password');
-                            setResetStep('request');
-                            setForgotError('');
-                            setForgotEmail('');
-                          }}
-                          className="text-[10px] text-blue-400 hover:text-blue-300 font-bold hover:underline transition"
-                        >
-                          {t('forgotPasswordLink')}
-                        </button>
-                      </div>
-                      <div className="relative group">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none select-none transition-transform group-focus-within:scale-110">🔒</span>
-                        <input
-                          type="password"
-                          value={loginPassword}
-                          onChange={(e) => {
-                            setLoginPassword(e.target.value);
-                            setLoginError('');
-                          }}
-                          placeholder="••••••••••••"
-                          className="w-full pl-11 pr-4 py-2.5 text-xs bg-slate-950/70 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-white font-bold transition duration-200"
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    {loginError && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-[11px] text-rose-400 font-bold text-center"
-                      >
-                        ⚠️ {loginError}
-                      </motion.div>
-                    )}
-
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      type="submit"
-                      className="w-full py-3 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 active:from-blue-700 active:to-blue-600 text-white font-bold rounded-xl text-xs shadow-lg shadow-blue-600/20 transition cursor-pointer flex items-center justify-center gap-1.5"
-                    >
-                      <span>{t('signInBtn')}</span>
-                    </motion.button>
-                  </form>
+                  <SignInForm
+                    onSubmit={handleCredentialsLogin}
+                    loginError={loginError}
+                    setLoginError={setLoginError}
+                    language={language}
+                    t={t}
+                    onForgotPasswordClick={() => {
+                      setLoginMode('forgot_password');
+                      setResetStep('request');
+                      setForgotError('');
+                      setForgotEmail('');
+                    }}
+                  />
 
                   {/* Switch to Register */}
                   <div className="border-t border-slate-800/60 pt-4 text-center">
@@ -2027,81 +1967,14 @@ export default function App() {
                     </p>
                   </div>
 
-                  <form onSubmit={handleMemberRegister} className="space-y-4">
-                    <div className="space-y-1.5">
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider">{t('usernameLabel')}</label>
-                      <div className="relative">
-                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs pointer-events-none select-none">👤</span>
-                        <input
-                          type="text"
-                          value={regUsername}
-                          onChange={(e) => setRegUsername(e.target.value)}
-                          placeholder="rithy99"
-                          className="w-full pl-9 pr-4 py-2.5 text-xs bg-slate-950/70 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-white font-bold transition duration-200"
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider">{t('emailLabel')}</label>
-                      <div className="relative">
-                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs pointer-events-none select-none">✉️</span>
-                        <input
-                          type="email"
-                          value={regEmail}
-                          onChange={(e) => setRegEmail(e.target.value)}
-                          placeholder="rithy@gmail.com"
-                          className="w-full pl-9 pr-4 py-2.5 text-xs bg-slate-950/70 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-white font-bold transition duration-200"
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider">{t('passwordLabel')}</label>
-                      <div className="relative">
-                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs pointer-events-none select-none">🔒</span>
-                        <input
-                          type="password"
-                          value={regPassword}
-                          onChange={(e) => setRegPassword(e.target.value)}
-                          placeholder="••••••••••••"
-                          className="w-full pl-9 pr-4 py-2.5 text-xs bg-slate-950/70 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-white font-bold transition duration-200"
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    {regError && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-[11px] text-rose-400 font-bold text-center"
-                      >
-                        ⚠️ {regError}
-                      </motion.div>
-                    )}
-
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      type="submit"
-                      disabled={authLoading}
-                      className="w-full py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-600 active:from-emerald-700 active:to-emerald-600 text-white font-bold rounded-xl text-xs shadow-lg shadow-emerald-600/20 transition cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50"
-                    >
-                      {authLoading ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          <span>{language === 'kh' ? 'កំពុងចុះឈ្មោះ...' : 'Registering...'}</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>{t('registerBtn')}</span>
-                        </>
-                      )}
-                    </motion.button>
-                  </form>
+                  <RegisterForm
+                    onSubmit={handleMemberRegister}
+                    regError={regError}
+                    setRegError={setRegError}
+                    authLoading={authLoading}
+                    language={language}
+                    t={t}
+                  />
 
                   <div className="border-t border-slate-800/60 pt-4 text-center">
                     <button
@@ -2132,148 +2005,19 @@ export default function App() {
                     </p>
                   </div>
 
-                  {/* Step 1: Request Email */}
-                  {resetStep === 'request' && (
-                    <form onSubmit={handleForgotPasswordRequest} className="space-y-4">
-                      <div className="space-y-1.5">
-                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider">{t('memberEmailLabel')}</label>
-                        <div className="relative">
-                          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs pointer-events-none select-none">✉️</span>
-                          <input
-                            type="email"
-                            value={forgotEmail}
-                            onChange={(e) => setForgotEmail(e.target.value)}
-                            placeholder="member@gmail.com"
-                            className="w-full pl-9 pr-4 py-2.5 text-xs bg-slate-950/70 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-white font-bold transition duration-200"
-                            required
-                          />
-                        </div>
-                      </div>
-
-                      {forgotError && (
-                        <motion.div
-                          initial={{ opacity: 0, y: -5 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-[11px] text-rose-400 font-bold text-center"
-                        >
-                          ⚠️ {forgotError}
-                        </motion.div>
-                      )}
-
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        type="submit"
-                        disabled={authLoading}
-                        className="w-full py-3 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 active:from-blue-700 active:to-blue-600 text-white font-bold rounded-xl text-xs shadow-lg shadow-blue-600/20 transition cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50"
-                      >
-                        {authLoading ? (
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        ) : (
-                          <span>{t('sendCodeBtn')}</span>
-                        )}
-                      </motion.button>
-                    </form>
-                  )}
-
-                  {/* Step 2: Verify Code */}
-                  {resetStep === 'verify' && (
-                    <form onSubmit={handleForgotPasswordVerify} className="space-y-4">
-                      <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-[11px] text-emerald-400 font-bold space-y-1">
-                        <p className="flex items-center gap-1.5">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span>{t('codeSentTitle')}</span>
-                        </p>
-                        <p className="text-slate-400 font-normal leading-relaxed">
-                          {t('codeSentDesc').replace('{email}', forgotEmail)}
-                        </p>
-                        <p className="text-[10px] text-amber-500/80 font-normal leading-relaxed border-t border-slate-850 pt-1.5 mt-1.5">
-                          {language === 'kh'
-                            ? `💡 ប្រសិនបើមានបញ្ហាយឺតយ៉ាវ ឬមិនបានទទួល៖ កូដសង្គ្រោះបម្រុងរបស់អ្នកគឺ ${verificationCode} (or use 123456)។`
-                            : `💡 If you experience delays or didn't receive it: your backup recovery code is ${verificationCode} (or use 123456).`}
-                        </p>
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider">{t('enter6DigitCode')}</label>
-                        <div className="relative">
-                          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs pointer-events-none select-none">🔢</span>
-                          <input
-                            type="text"
-                            maxLength={6}
-                            value={enteredCode}
-                            onChange={(e) => setEnteredCode(e.target.value)}
-                            placeholder="123456"
-                            className="w-full pl-9 pr-4 py-2.5 text-xs bg-slate-950/70 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-white font-extrabold tracking-widest text-center transition duration-200"
-                            required
-                          />
-                        </div>
-                      </div>
-
-                      {forgotError && (
-                        <motion.div
-                          initial={{ opacity: 0, y: -5 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-[11px] text-rose-400 font-bold text-center"
-                        >
-                          ⚠️ {forgotError}
-                        </motion.div>
-                      )}
-
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        type="submit"
-                        className="w-full py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-600 active:from-emerald-700 active:to-emerald-600 text-white font-bold rounded-xl text-xs shadow-lg shadow-emerald-600/20 transition cursor-pointer flex items-center justify-center gap-1.5"
-                      >
-                        <span>{t('verifyCodeBtn')}</span>
-                      </motion.button>
-                    </form>
-                  )}
-
-                  {/* Step 3: New Password */}
-                  {resetStep === 'new_password' && (
-                    <form onSubmit={handleForgotPasswordReset} className="space-y-4">
-                      <div className="space-y-1.5">
-                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider">{t('newPasswordLabel')}</label>
-                        <div className="relative">
-                          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs pointer-events-none select-none">🔒</span>
-                          <input
-                            type="password"
-                            value={newPassword}
-                            onChange={(e) => setNewPassword(e.target.value)}
-                            placeholder="••••••••"
-                            className="w-full pl-9 pr-4 py-2.5 text-xs bg-slate-950/70 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-white font-bold transition duration-200"
-                            required
-                          />
-                        </div>
-                      </div>
-
-                      {forgotError && (
-                        <motion.div
-                          initial={{ opacity: 0, y: -5 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-[11px] text-rose-400 font-bold text-center"
-                        >
-                          ⚠️ {forgotError}
-                        </motion.div>
-                      )}
-
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        type="submit"
-                        disabled={authLoading}
-                        className="w-full py-3 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 active:from-blue-700 active:to-blue-600 text-white font-bold rounded-xl text-xs shadow-lg shadow-blue-600/20 transition cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50"
-                      >
-                        {authLoading ? (
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        ) : (
-                          <span>{t('saveNewPasswordBtn')}</span>
-                        )}
-                      </motion.button>
-                    </form>
-                  )}
+                  <ForgotPasswordForm
+                    onRequest={handleForgotPasswordRequest}
+                    onVerify={handleForgotPasswordVerify}
+                    onReset={handleForgotPasswordReset}
+                    resetStep={resetStep}
+                    verificationCode={verificationCode}
+                    forgotEmail={forgotEmail}
+                    forgotError={forgotError}
+                    setForgotError={setForgotError}
+                    authLoading={authLoading}
+                    language={language}
+                    t={t}
+                  />
 
                   <div className="border-t border-slate-800/60 pt-4 text-center">
                     <button
@@ -3502,7 +3246,7 @@ export default function App() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder={t('searchPlaceholder')}
-                    className="w-full pl-10 pr-4 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition font-bold"
+                    className="w-full pl-10 pr-4 py-2.5 text-base md:text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition font-bold"
                   />
                 </div>
               </div>
