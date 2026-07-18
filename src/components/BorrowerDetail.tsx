@@ -4,6 +4,9 @@ import { formatMoney, formatKhmerDate, getTodayDateString } from '../utils';
 import { X, Trash2, Archive, Phone, Calendar, ArrowLeft, Plus, Check, Share2, Copy, MessageSquare, RotateCcw, Edit3, MessageCircle, Camera, User, Image as ImageIcon, QrCode } from 'lucide-react';
 import { useLanguage } from '../i18n';
 import LiveChat from './LiveChat';
+import { motion, AnimatePresence } from 'motion/react';
+import AvatarWithFrame from './AvatarWithFrame';
+import FrameSelectorModal from './FrameSelectorModal';
 
 interface BorrowerDetailProps {
   borrower: Borrower;
@@ -29,6 +32,7 @@ export default function BorrowerDetail({
   onEditBorrower,
 }: BorrowerDetailProps) {
   const { t, language } = useLanguage();
+  const payments = Array.isArray(borrower.payments) ? borrower.payments : [];
   const [customAmount, setCustomAmount] = useState<string>('');
 
   const [customDate, setCustomDate] = useState<string>(getTodayDateString());
@@ -36,6 +40,8 @@ export default function BorrowerDetail({
   const [copied, setCopied] = useState<boolean>(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState<boolean>(false);
   const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
+  const [isFrameModalOpen, setIsFrameModalOpen] = useState<boolean>(false);
+  const [detailTab, setDetailTab] = useState<'schedule' | 'personal'>('schedule');
 
   // Edit Mode states
   const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -264,7 +270,7 @@ export default function BorrowerDetail({
   };
 
   // Calculate stats
-  const totalPaid = borrower.payments.reduce((sum, p) => sum + p.amount, 0);
+  const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
   const remaining = Math.max(0, borrower.totalToPay - totalPaid);
   const progressPercent = Math.min(100, Math.round((totalPaid / borrower.totalToPay) * 100));
   const isCompleted = remaining <= 0;
@@ -343,8 +349,8 @@ export default function BorrowerDetail({
 
   // Map payments by installment index for easy grid lookup
   const paymentBySlot: Record<number, Payment> = {};
-  borrower.payments.forEach((p) => {
-    if (p.installmentIndex !== -1) {
+  payments.forEach((p) => {
+    if (p && p.installmentIndex !== -1) {
       paymentBySlot[p.installmentIndex] = p;
     }
   });
@@ -411,8 +417,21 @@ export default function BorrowerDetail({
   };
 
   return (
-    <div id="borrower-detail-container" className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
-      <div className="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 flex flex-col my-4 md:my-8 max-h-[92vh]">
+    <motion.div
+      id="borrower-detail-container"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto"
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 30, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 30, scale: 0.98 }}
+        transition={{ type: 'spring', damping: 25, stiffness: 380 }}
+        className="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 flex flex-col my-4 md:my-8 max-h-[92vh]"
+      >
         {/* Header toolbar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between p-5 border-b border-slate-200 gap-3">
           <div className="flex items-center gap-3">
@@ -422,20 +441,13 @@ export default function BorrowerDetail({
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center shrink-0 shadow-sm">
-              {borrower.profilePhoto ? (
-                <img
-                  src={borrower.profilePhoto}
-                  alt={borrower.name}
-                  className="w-full h-full object-cover"
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <span className="text-sm font-extrabold text-slate-500">
-                  {borrower.name.charAt(0).toUpperCase()}
-                </span>
-              )}
-            </div>
+            <AvatarWithFrame
+              photoUrl={borrower.profilePhoto}
+              name={borrower.name}
+              frameId={borrower.avatarFrame}
+              size="sm"
+              className="shrink-0"
+            />
             <div>
               <h2 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
                 {borrower.name}
@@ -901,20 +913,16 @@ export default function BorrowerDetail({
 
               {/* Profile Overlapping Area */}
               <div className="px-6 pb-4 pt-12 sm:pt-4 flex flex-col sm:flex-row items-center sm:items-end justify-between gap-4 border-b border-slate-100 bg-white relative">
-                {/* Profile Photo Overlapping */}
-                <div className="absolute left-1/2 sm:left-10 -top-12 -translate-x-1/2 sm:translate-x-0 w-24 h-24 rounded-full border-4 border-white overflow-hidden bg-slate-100 flex items-center justify-center shadow-md">
-                  {borrower.profilePhoto ? (
-                    <img
-                      src={borrower.profilePhoto}
-                      alt={borrower.name}
-                      className="w-full h-full object-cover"
-                      referrerPolicy="no-referrer"
-                    />
-                  ) : (
-                    <span className="text-3xl font-black text-slate-400">
-                      {borrower.name.charAt(0).toUpperCase()}
-                    </span>
-                  )}
+                {/* Profile Photo Overlapping with animated frame selector */}
+                <div className="absolute left-1/2 sm:left-10 -top-12 -translate-x-1/2 sm:translate-x-0 z-30">
+                  <AvatarWithFrame
+                    photoUrl={borrower.profilePhoto}
+                    name={borrower.name}
+                    frameId={borrower.avatarFrame}
+                    size="lg"
+                    editable={true}
+                    onClick={() => setIsFrameModalOpen(true)}
+                  />
                 </div>
 
                 {/* Name & Title */}
@@ -957,471 +965,528 @@ export default function BorrowerDetail({
               </div>
             </div>
 
-            {/* Grid Layout of Details */}
-            <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
-              {/* Column 1: Financial details (5 cols) */}
-          <div className="lg:col-span-5 space-y-6">
-            <div className="bg-slate-50/80 rounded-2xl p-5 border border-slate-200 space-y-4">
-              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">📊 {language === 'kh' ? 'ព័ត៌មានគណនេយ្យ' : 'Financial Ledger'}</h3>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-                  <span className="text-[10px] font-bold text-slate-400 block mb-0.5">{language === 'kh' ? 'ប្រាក់ខ្ចីដើម' : 'Principal Loan'}</span>
-                  <span className="text-sm font-extrabold text-slate-800">{formatMoney(borrower.principal, borrower.currency)}</span>
-                </div>
-                <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-                  <span className="text-[10px] font-bold text-slate-400 block mb-0.5">{language === 'kh' ? 'ប្រាក់សរុបត្រូវសង' : 'Total to Repay'}</span>
-                  <span className="text-sm font-extrabold text-slate-800">{formatMoney(borrower.totalToPay, borrower.currency)}</span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-                  <span className="text-[10px] font-bold text-slate-400 block mb-0.5">{language === 'kh' ? 'បានសងសរុប' : 'Total Collected'}</span>
-                  <span className="text-sm font-extrabold text-emerald-600">{formatMoney(totalPaid, borrower.currency)}</span>
-                </div>
-                <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-                  <span className="text-[10px] font-bold text-slate-400 block mb-0.5">{language === 'kh' ? 'ប្រាក់នៅសល់' : 'Remaining'}</span>
-                  <span className={`text-sm font-extrabold ${isCompleted ? 'text-slate-300' : 'text-orange-600'}`}>
-                    {formatMoney(remaining, borrower.currency)}
-                  </span>
-                </div>
-              </div>
-
-              <div className="space-y-1.5 pt-2">
-                <div className="flex justify-between items-center text-xs font-semibold text-slate-500">
-                  <span>{language === 'kh' ? 'វឌ្ឍនភាពនៃការសង' : 'Repayment Progress'}</span>
-                  <span className="text-blue-600 font-extrabold">{progressPercent}%</span>
-                </div>
-                <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-blue-600 rounded-full transition-all duration-300"
-                    style={{ width: `${progressPercent}%` }}
-                  />
-                </div>
-              </div>
-
-              <div className="border-t border-slate-200 pt-3 text-xs space-y-1.5 text-slate-600 font-medium">
-                {borrower.interestValue !== undefined && (
-                  <div className="flex justify-between">
-                    <span>{language === 'kh' ? 'ការប្រាក់ (Interest)៖' : 'Interest rate:'}</span>
-                    <span className="text-slate-800 font-bold">
-                      {borrower.interestType === 'percent' ? `${borrower.interestValue}%` : formatMoney(borrower.interestValue, borrower.currency)}
-                    </span>
-                  </div>
-                )}
-                <div className="flex justify-between">
-                  <span>{language === 'kh' ? 'របៀបគណនាការប្រាក់៖' : 'Interest Calculation:'}</span>
-                  <span className="font-bold text-slate-800">
-                    {borrower.interestCalculation === 'per-period' 
-                      ? (language === 'kh' ? '🔄 ការប្រាក់ប្រចាំថ្ងៃ/វគ្គ' : '🔄 Per Installment Term') 
-                      : (language === 'kh' ? '🎯 ការប្រាក់សរុប' : '🎯 Total Fixed Interest')}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span>{language === 'kh' ? 'របៀបសងប្រាក់៖' : 'Repayment Mode:'}</span>
-                  <span className="font-extrabold text-blue-700">
-                    {borrower.paymentMode === 'interest-only' 
-                      ? (language === 'kh' ? '📈 បង់តែការសុទ្ធ (Interest Only)' : '📈 Interest-only Payment') 
-                      : (language === 'kh' ? '💵 បង់ទាំងដើមទាំងការ' : '💵 Principal + Interest')}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span>{language === 'kh' ? 'កាលបរិច្ឆេទខ្ចី៖' : 'Loan Date:'}</span>
-                  <span className="text-slate-800 font-bold">{formatKhmerDate(borrower.loanDate)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>{language === 'kh' ? 'វគ្គបង់ប្រាក់៖' : 'Payment Frequency:'}</span>
-                  <span className="text-slate-800 font-bold">
-                    {borrower.frequency === 'daily' 
-                      ? (language === 'kh' ? 'រាល់ថ្ងៃ' : 'Daily') 
-                      : borrower.frequency === 'weekly' 
-                        ? (language === 'kh' ? 'រាល់សប្តាហ៍' : 'Weekly') 
-                        : (language === 'kh' ? 'រាល់ខែ' : 'Monthly')}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span>{language === 'kh' ? 'បង់ប្រាក់ក្នុងមួយដង៖' : 'Term Installment Amount:'}</span>
-                  <span className="text-blue-600 font-extrabold">{formatMoney(borrower.installmentAmount, borrower.currency)}</span>
-                </div>
-                {borrower.notes && (
-                  <div className="pt-2 text-[11px] text-slate-400 border-t border-slate-200">
-                    <span className="font-bold block text-slate-500 mb-0.5">{language === 'kh' ? 'កំណត់ចំណាំ៖' : 'Notes:'}</span>
-                    <p className="whitespace-pre-line text-slate-600 leading-relaxed">{borrower.notes}</p>
-                  </div>
-                )}
-                {borrower.noticeMessage && (
-                  <div className="pt-2 text-[11px] border-t border-slate-200">
-                    <span className="font-bold block text-amber-600 flex items-center gap-1 mb-1">
-                      <span>📣</span>
-                      <span>{language === 'kh' ? 'សារជូនដំណឹងរំលឹកកូនបំណុល៖' : 'Borrower Alert Notice:'}</span>
-                    </span>
-                    <p className="whitespace-pre-line text-slate-700 font-bold bg-amber-50 border border-amber-200/60 p-2.5 rounded-xl leading-relaxed">{borrower.noticeMessage}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Borrower standing status picker */}
-            <div className="bg-slate-50 p-4.5 rounded-2xl border border-slate-200 space-y-3">
-              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
-                <span>🌟</span> {language === 'kh' ? 'ស្ថានភាពកូនបំណុល' : 'Borrower Standing Rating'}
-              </h4>
-              <div className="grid grid-cols-3 gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => onUpdateStatus(borrower.id, 'good')}
-                  className={`py-2 px-1 text-[11px] font-bold rounded-xl border text-center transition cursor-pointer flex flex-col items-center justify-center gap-1 ${
-                    borrower.statusTag === 'good'
-                      ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm shadow-emerald-600/20'
-                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
-                  }`}
-                >
-                  <span className="text-sm">🟢</span>
-                  <span>{language === 'kh' ? 'ល្អ (Good)' : 'Good'}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onUpdateStatus(borrower.id, 'regular')}
-                  className={`py-2 px-1 text-[11px] font-bold rounded-xl border text-center transition cursor-pointer flex flex-col items-center justify-center gap-1 ${
-                    borrower.statusTag === 'regular' || !borrower.statusTag
-                      ? 'bg-amber-500 text-white border-amber-500 shadow-sm shadow-amber-500/20'
-                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
-                  }`}
-                >
-                  <span className="text-sm">🟡</span>
-                  <span>{language === 'kh' ? 'ធម្មតា (Regular)' : 'Regular'}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onUpdateStatus(borrower.id, 'late')}
-                  className={`py-2 px-1 text-[11px] font-bold rounded-xl border text-center transition cursor-pointer flex flex-col items-center justify-center gap-1 ${
-                    borrower.statusTag === 'late'
-                      ? 'bg-rose-600 text-white border-rose-600 shadow-sm shadow-rose-600/20 animate-pulse'
-                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
-                  }`}
-                >
-                  <span className="text-sm">🔴</span>
-                  <span>{language === 'kh' ? 'យឺតយ៉ាវ (Late)' : 'Late/Slow'}</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Auto Check-In Toggle Option */}
-            <div className="bg-slate-50 p-4.5 rounded-2xl border border-slate-200 flex items-center justify-between gap-4">
-              <div className="space-y-0.5">
-                <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                  <span>🔄</span> {t('toggleAutoCheckInLabel')}
-                </h4>
-                <p className="text-[10px] text-slate-400 font-semibold leading-relaxed">
-                  {t('toggleAutoCheckInDesc')}
-                </p>
-              </div>
+            {/* Elegant Tabs switcher */}
+            <div className="px-6 border-b border-slate-100 bg-white flex gap-6 shrink-0">
               <button
                 type="button"
-                onClick={() => onToggleAutoCheckIn && onToggleAutoCheckIn(borrower.id)}
-                disabled={!onToggleAutoCheckIn}
-                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                  borrower.autoCheckIn ? 'bg-blue-600' : 'bg-slate-200'
-                } ${!onToggleAutoCheckIn ? 'opacity-50 cursor-not-allowed' : ''}`}
+                onClick={() => setDetailTab('schedule')}
+                className={`py-3.5 text-xs sm:text-sm font-extrabold relative transition-colors duration-200 cursor-pointer ${
+                  detailTab === 'schedule' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-400 hover:text-slate-600 border-b-2 border-transparent'
+                }`}
               >
-                <span
-                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
-                    borrower.autoCheckIn ? 'translate-x-5' : 'translate-x-0'
-                  }`}
-                />
+                <span className="flex items-center gap-1.5">
+                  <span>🗓️</span>
+                  <span>{language === 'kh' ? 'តារាងបង់ប្រាក់' : 'Payment Schedule & Logs'}</span>
+                </span>
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => setDetailTab('personal')}
+                className={`py-3.5 text-xs sm:text-sm font-extrabold relative transition-colors duration-200 cursor-pointer ${
+                  detailTab === 'personal' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-400 hover:text-slate-600 border-b-2 border-transparent'
+                }`}
+              >
+                <span className="flex items-center gap-1.5">
+                  <span>👤</span>
+                  <span>{language === 'kh' ? 'ព័ត៌មានផ្ទាល់ខ្លួន' : 'Personal & Loan Info'}</span>
+                </span>
               </button>
             </div>
 
-            {/* Custom Payment Form */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-4 shadow-sm">
-              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                <span>📝 {language === 'kh' ? 'បញ្ចូលការបង់ប្រាក់តាមចិត្ត' : 'Custom Payment Entry'}</span>
-              </h3>
-              <form onSubmit={handleCustomPaymentSubmit} className="space-y-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{language === 'kh' ? 'ទឹកប្រាក់សង' : 'Amount Paid'}</label>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        value={customAmount}
-                        onChange={(e) => setCustomAmount(e.target.value)}
-                        placeholder={borrower.installmentAmount.toString()}
-                        className="w-full pl-3 pr-7 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-bold text-slate-800"
-                        min="0.01"
-                        step="any"
-                        required
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
-                        {borrower.currency === 'USD' ? '$' : '៛'}
-                      </span>
+            {/* Tab Contents with Framer Motion Transition */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={detailTab}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.2 }}
+                className="p-6 space-y-6"
+              >
+                {detailTab === 'schedule' ? (
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                      {/* Column 2: Visual Installment Card / Box Checklist (7 cols) */}
+                      <div className="lg:col-span-7 flex flex-col space-y-6">
+                        <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3 flex-1 flex flex-col shadow-sm">
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <div>
+                              <h3 className="text-sm font-bold text-slate-800">🗓️ {language === 'kh' ? 'កាតគ្រីស្គូរបង់ប្រាក់ (Installment Checkboard)' : 'Installment Checkboard'}</h3>
+                              <p className="text-xs text-slate-400 mt-0.5">
+                                {language === 'kh' ? 'ចុចលើប្រអប់លេខនីមួយៗ ដើម្បីកត់ត្រាសងប្រាក់រហ័ស ឬលុបការបង់ប្រាក់។' : 'Click any box to quickly record installment payment or uncheck to delete.'}
+                              </p>
+                            </div>
+                            {totalPaid < borrower.totalToPay && (
+                              <button
+                                onClick={() => {
+                                  const unpaidIndices: number[] = [];
+                                  for (let i = 0; i < borrower.duration; i++) {
+                                    if (!paymentBySlot[i]) unpaidIndices.push(i);
+                                  }
+                                  if (unpaidIndices.length === 0) return;
+                                  const msg = language === 'kh'
+                                    ? `តើអ្នកពិតជាចង់កត់ត្រាការបង់ប្រាក់សម្រាប់វគ្គដែលនៅសល់ទាំង ${unpaidIndices.length} វគ្គក្នុងពេលតែមួយមែនទេ?`
+                                    : `Are you sure you want to log payments for all remaining ${unpaidIndices.length} installments at once?`;
+                                  if (window.confirm(msg)) {
+                                    unpaidIndices.forEach((index) => {
+                                      onAddPayment(borrower.id, {
+                                        amount: borrower.installmentAmount,
+                                        date: getTodayDateString(),
+                                        installmentIndex: index,
+                                        note: language === 'kh' ? `ទូទាត់រហ័សវគ្គទី ${index + 1}` : `Quick paid installment ${index + 1}`,
+                                      });
+                                    });
+                                  }
+                                }}
+                                className="shrink-0 px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-extrabold text-xs rounded-xl border border-emerald-200 flex items-center gap-1 cursor-pointer transition duration-150"
+                              >
+                                <span>✔️ {language === 'kh' ? 'ទូទាត់រហ័សគ្រប់វគ្គ' : 'Auto Check All'}</span>
+                              </button>
+                            )}
+                          </div>
+
+                          {/* Installment Boxes grid */}
+                          <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-6 gap-3 pt-2 overflow-y-auto max-h-[300px] md:max-h-[380px] p-1 border border-slate-100 rounded-xl">
+                            {Array.from({ length: borrower.duration }).map((_, index) => {
+                              const payment = paymentBySlot[index];
+                              const isPaid = !!payment;
+
+                              return (
+                                <button
+                                  key={index}
+                                  id={`day-box-${index}`}
+                                  onClick={() => handleBoxClick(index)}
+                                  className={`aspect-square p-2 rounded-xl flex flex-col justify-between items-center border transition-all duration-150 cursor-pointer ${isPaid ? 'bg-emerald-500 border-emerald-600 text-white shadow-sm shadow-emerald-500/10 hover:bg-emerald-600' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700 hover:border-slate-300'}`}
+                                >
+                                  <span className="text-[10px] font-bold opacity-75 uppercase">{language === 'kh' ? 'វគ្គទី' : 'Term'}</span>
+                                  <span className="text-lg font-extrabold leading-none">{index + 1}</span>
+                                  {isPaid ? (
+                                    <Check className="w-3.5 h-3.5 mt-0.5" />
+                                  ) : (
+                                    <span className="text-[9px] font-semibold opacity-60">
+                                      {formatMoney(borrower.installmentAmount, borrower.currency).replace('៛', '៛').split(' ')[0]}
+                                    </span>
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
+
+                          {/* Instructions */}
+                          <div className="flex flex-wrap gap-x-4 gap-y-1 pt-2 text-[11px] text-slate-400">
+                            <div className="flex items-center gap-1.5">
+                              <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full border border-emerald-600" />
+                              <span>{language === 'kh' ? 'បង់រួច (Paid)' : 'Paid'}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <span className="w-2.5 h-2.5 bg-slate-100 rounded-full border border-slate-200" />
+                              <span>{language === 'kh' ? 'នៅសល់ (Unpaid)' : 'Unpaid'}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Payment Reminder Textbox Card (5 cols) */}
+                      <div className="lg:col-span-5 flex flex-col">
+                        <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3 flex-1 flex flex-col shadow-sm">
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <h3 className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                                <MessageSquare className="w-4 h-4 text-blue-600" />
+                                <span>📣 {language === 'kh' ? 'សារជូនដំណឹងសងប្រាក់' : 'Reminder Message'}</span>
+                              </h3>
+                              <p className="text-[11px] text-slate-400 mt-0.5">
+                                {language === 'kh' ? 'អ្នកអាចសរសេរ ឬកែសម្រួលសារជូនដំណឹងនេះ រួចចម្លងដើម្បីផ្ញើទៅកាន់កូនបំណុលរបស់អ្នក។' : 'You can customize this text message and copy it to send as SMS, Telegram, etc.'}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Template Presets */}
+                          <div className="flex flex-wrap gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => setReminderMessage(getDefaultTemplate('general'))}
+                              className="px-2.5 py-1 text-[10px] font-bold rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600 transition flex items-center gap-1 cursor-pointer"
+                            >
+                              🔔 {language === 'kh' ? 'សារទូទៅ' : 'General'}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setReminderMessage(getDefaultTemplate('urgent'))}
+                              className="px-2.5 py-1 text-[10px] font-bold rounded-lg border border-rose-100 bg-rose-50 hover:bg-rose-100/75 text-rose-700 transition flex items-center gap-1 cursor-pointer"
+                            >
+                              ⚠️ {language === 'kh' ? 'សាររំលឹកបន្ទាន់' : 'Urgent Notice'}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setReminderMessage(getDefaultTemplate('thanks'))}
+                              className="px-2.5 py-1 text-[10px] font-bold rounded-lg border border-emerald-100 bg-emerald-50 hover:bg-emerald-100/75 text-emerald-700 transition flex items-center gap-1 cursor-pointer"
+                            >
+                              🎉 {language === 'kh' ? 'សារថ្លែងអំណរគុណ' : 'Thank You'}
+                            </button>
+                          </div>
+
+                          {/* Message Textarea */}
+                          <div className="relative flex-1 min-h-[100px] flex flex-col">
+                            <textarea
+                              value={reminderMessage}
+                              onChange={(e) => setReminderMessage(e.target.value)}
+                              rows={4}
+                              className="w-full flex-1 p-3 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-bold text-slate-700 leading-relaxed resize-none"
+                              placeholder={language === 'kh' ? "សរសេរសារជូនដំណឹងនៅទីនេះ..." : "Write message here..."}
+                            />
+                          </div>
+
+                          {/* Action buttons */}
+                          <div className="flex items-center gap-2 pt-2">
+                            <button
+                              type="button"
+                              onClick={handleCopyMessage}
+                              className={`flex-1 py-2 text-xs font-bold rounded-xl border flex items-center justify-center gap-2 transition duration-150 cursor-pointer ${
+                                msgCopied
+                                  ? 'bg-emerald-600 text-white border-emerald-500 shadow-sm shadow-emerald-600/20'
+                                  : 'bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 border-blue-600 shadow-sm shadow-blue-600/15'
+                              }`}
+                            >
+                              {msgCopied ? (
+                                <>
+                                  <Check className="w-4 h-4 stroke-[3px]" />
+                                  <span>{language === 'kh' ? 'បានចម្លងសារជូនដំណឹងរួចរាល់!' : 'Reminder Message Copied!'}</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-4 h-4" />
+                                  <span>{language === 'kh' ? 'ចម្លងសារ និងតំណភ្ជាប់' : 'Copy Reminder Message'}</span>
+                                </>
+                              )}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const isFullyPaid = remaining <= 0;
+                                setReminderMessage(getDefaultTemplate(isFullyPaid ? 'thanks' : 'general'));
+                              }}
+                              className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-xl border border-slate-200 transition cursor-pointer flex items-center justify-center"
+                              title={language === 'kh' ? "កំណត់ឡើងវិញ" : "Reset Template"}
+                            >
+                              <RotateCcw className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bottom row: Payment History Logs */}
+                    <div className="p-5 border border-slate-200 bg-slate-50/50 rounded-2xl overflow-y-auto max-h-[260px] shadow-sm">
+                      <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                        <span>🕒</span> 
+                        <span>{language === 'kh' ? 'ប្រវត្តិនៃការបង់ប្រាក់ (Payment History)' : 'Payment History Logs'}</span>
+                      </h3>
+                      
+                      {payments.length === 0 ? (
+                        <div className="text-center py-6 text-slate-400 text-sm">
+                          {language === 'kh' ? 'មិនទាន់មានប្រវត្តិបង់ប្រាក់នៅឡើយទេ។' : 'No payment history logged yet.'}
+                        </div>
+                      ) : (
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-left text-xs border-collapse">
+                            <thead>
+                              <tr className="border-b border-slate-200 text-slate-400 font-bold uppercase">
+                                <th className="py-2 px-3">{language === 'kh' ? 'ថ្ងៃបង់ប្រាក់' : 'Payment Date'}</th>
+                                <th className="py-2 px-3">{language === 'kh' ? 'ចំនួនទឹកប្រាក់' : 'Amount'}</th>
+                                <th className="py-2 px-3">{language === 'kh' ? 'ប្រភេទការបង់' : 'Payment Type'}</th>
+                                <th className="py-2 px-3">{language === 'kh' ? 'កំណត់សម្គាល់' : 'Notes/Memo'}</th>
+                                <th className="py-2 px-3 text-right">{language === 'kh' ? 'សកម្មភាព' : 'Action'}</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100 font-semibold text-slate-600">
+                              {[...payments].reverse().map((pay) => (
+                                <tr key={pay.id} className="hover:bg-slate-100/50">
+                                  <td className="py-2 px-3 text-slate-800">{formatKhmerDate(pay.date)}</td>
+                                  <td className="py-2 px-3 text-blue-600 font-extrabold">{formatMoney(pay.amount, borrower.currency)}</td>
+                                  <td className="py-2 px-3">
+                                    {pay.installmentIndex !== -1 ? (
+                                      <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-md text-[10px] font-bold">
+                                        {language === 'kh' ? `វគ្គទី ${pay.installmentIndex + 1}` : `Term ${pay.installmentIndex + 1}`}
+                                      </span>
+                                    ) : (
+                                      <span className="px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-md text-[10px] font-bold">
+                                        {language === 'kh' ? 'បង់តាមចិត្ត' : 'Custom'}
+                                      </span>
+                                    )}
+                                  </td>
+                                  <td className="py-2 px-3 text-slate-400 italic max-w-[200px] truncate">{pay.note || '-'}</td>
+                                  <td className="py-2 px-3 text-right">
+                                    <button
+                                      onClick={() => {
+                                        const confirmMsg = language === 'kh'
+                                          ? 'តើអ្នកចង់លុបការបង់ប្រាក់នេះឡើងវិញមែនទេ?'
+                                          : 'Are you sure you want to delete this payment record?';
+                                        if (confirm(confirmMsg)) {
+                                          onDeletePayment(borrower.id, pay.id);
+                                        }
+                                      }}
+                                      className="p-1 hover:bg-rose-50 text-rose-500 hover:text-rose-700 rounded-md transition cursor-pointer"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
                     </div>
                   </div>
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{language === 'kh' ? 'ថ្ងៃបង់ប្រាក់' : 'Payment Date'}</label>
-                    <input
-                      type="date"
-                      value={customDate}
-                      onChange={(e) => setCustomDate(e.target.value)}
-                      className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium"
-                      required
-                    />
-                  </div>
-                </div>
+                ) : (
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    {/* Column 1 Left: Financial Ledger (6 cols) */}
+                    <div className="lg:col-span-6 space-y-6">
+                      <div className="bg-slate-50/80 rounded-2xl p-5 border border-slate-200 space-y-4 shadow-sm">
+                        <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                          <span>📊</span>
+                          <span>{language === 'kh' ? 'ព័ត៌មានគណនេយ្យ' : 'Financial Ledger'}</span>
+                        </h3>
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                            <span className="text-[10px] font-bold text-slate-400 block mb-0.5">{language === 'kh' ? 'ប្រាក់ខ្ចីដើម' : 'Principal Loan'}</span>
+                            <span className="text-sm font-extrabold text-slate-800">{formatMoney(borrower.principal, borrower.currency)}</span>
+                          </div>
+                          <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                            <span className="text-[10px] font-bold text-slate-400 block mb-0.5">{language === 'kh' ? 'ប្រាក់សរុបត្រូវសង' : 'Total to Repay'}</span>
+                            <span className="text-sm font-extrabold text-slate-800">{formatMoney(borrower.totalToPay, borrower.currency)}</span>
+                          </div>
+                        </div>
 
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{language === 'kh' ? 'ការសម្គាល់បន្ថែម' : 'Note / Memo'}</label>
-                  <input
-                    type="text"
-                    value={customNote}
-                    onChange={(e) => setCustomNote(e.target.value)}
-                    placeholder={language === 'kh' ? "ឧ. បង់បន្ថែមសម្រាប់ថ្ងៃអាទិត្យ" : "e.g., extra payment on Sunday"}
-                    className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium"
-                  />
-                </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                            <span className="text-[10px] font-bold text-slate-400 block mb-0.5">{language === 'kh' ? 'បានសងសរុប' : 'Total Collected'}</span>
+                            <span className="text-sm font-extrabold text-emerald-600">{formatMoney(totalPaid, borrower.currency)}</span>
+                          </div>
+                          <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                            <span className="text-[10px] font-bold text-slate-400 block mb-0.5">{language === 'kh' ? 'ប្រាក់នៅសល់' : 'Remaining'}</span>
+                            <span className={`text-sm font-extrabold ${isCompleted ? 'text-slate-300' : 'text-orange-600'}`}>
+                              {formatMoney(remaining, borrower.currency)}
+                            </span>
+                          </div>
+                        </div>
 
-                <button
-                  type="submit"
-                  className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold rounded-xl text-xs transition duration-150 flex items-center justify-center gap-1 cursor-pointer"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>{language === 'kh' ? 'កត់ត្រាការបង់ប្រាក់' : 'Record Payment'}</span>
-                </button>
-              </form>
-            </div>
-          </div>
+                        <div className="space-y-1.5 pt-2">
+                          <div className="flex justify-between items-center text-xs font-semibold text-slate-500">
+                            <span>{language === 'kh' ? 'វឌ្ឍនភាពនៃការសង' : 'Repayment Progress'}</span>
+                            <span className="text-blue-600 font-extrabold">{progressPercent}%</span>
+                          </div>
+                          <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-blue-600 rounded-full transition-all duration-300"
+                              style={{ width: `${progressPercent}%` }}
+                            />
+                          </div>
+                        </div>
 
-          {/* Column 2: Visual Installment Card / Box Checklist (7 cols) */}
-          <div className="lg:col-span-7 flex flex-col space-y-6">
-            <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3 flex-1 flex flex-col shadow-sm">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <div>
-                  <h3 className="text-sm font-bold text-slate-800">🗓️ {language === 'kh' ? 'កាតគ្រីស្គូរបង់ប្រាក់ (Installment Checkboard)' : 'Installment Checkboard'}</h3>
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    {language === 'kh' ? 'ចុចលើប្រអប់លេខនីមួយៗ ដើម្បីកត់ត្រាសងប្រាក់រហ័ស ឬលុបការបង់ប្រាក់។' : 'Click any box to quickly record installment payment or uncheck to delete.'}
-                  </p>
-                </div>
-                {totalPaid < borrower.totalToPay && (
-                  <button
-                    onClick={() => {
-                      const unpaidIndices: number[] = [];
-                      for (let i = 0; i < borrower.duration; i++) {
-                        if (!paymentBySlot[i]) unpaidIndices.push(i);
-                      }
-                      if (unpaidIndices.length === 0) return;
-                      const msg = language === 'kh'
-                        ? `តើអ្នកពិតជាចង់កត់ត្រាការបង់ប្រាក់សម្រាប់វគ្គដែលនៅសល់ទាំង ${unpaidIndices.length} វគ្គក្នុងពេលតែមួយមែនទេ?`
-                        : `Are you sure you want to log payments for all remaining ${unpaidIndices.length} installments at once?`;
-                      if (window.confirm(msg)) {
-                        unpaidIndices.forEach((index) => {
-                          onAddPayment(borrower.id, {
-                            amount: borrower.installmentAmount,
-                            date: getTodayDateString(),
-                            installmentIndex: index,
-                            note: language === 'kh' ? `ទូទាត់រហ័សវគ្គទី ${index + 1}` : `Quick paid installment ${index + 1}`,
-                          });
-                        });
-                      }
-                    }}
-                    className="shrink-0 px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-extrabold text-xs rounded-xl border border-emerald-200 flex items-center gap-1 cursor-pointer transition duration-150"
-                  >
-                    <span>✔️ {language === 'kh' ? 'ទូទាត់រហ័សគ្រប់វគ្គ' : 'Auto Check All'}</span>
-                  </button>
-                )}
-              </div>
+                        <div className="border-t border-slate-200 pt-3 text-xs space-y-1.5 text-slate-600 font-medium">
+                          {borrower.interestValue !== undefined && (
+                            <div className="flex justify-between">
+                              <span>{language === 'kh' ? 'ការប្រាក់ (Interest)៖' : 'Interest rate:'}</span>
+                              <span className="text-slate-800 font-bold">
+                                {borrower.interestType === 'percent' ? `${borrower.interestValue}%` : formatMoney(borrower.interestValue, borrower.currency)}
+                              </span>
+                            </div>
+                          )}
+                          <div className="flex justify-between">
+                            <span>{language === 'kh' ? 'របៀបគណនាការប្រាក់៖' : 'Interest Calculation:'}</span>
+                            <span className="font-bold text-slate-800">
+                              {borrower.interestCalculation === 'per-period' 
+                                ? (language === 'kh' ? '🔄 ការប្រាក់ប្រចាំថ្ងៃ/វគ្គ' : '🔄 Per Installment Term') 
+                                : (language === 'kh' ? '🎯 ការប្រាក់សរុប' : '🎯 Total Fixed Interest')}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>{language === 'kh' ? 'របៀបសងប្រាក់៖' : 'Repayment Mode:'}</span>
+                            <span className="font-extrabold text-blue-700">
+                              {borrower.paymentMode === 'interest-only' 
+                                ? (language === 'kh' ? '📈 បង់តែការសុទ្ធ (Interest Only)' : '📈 Interest-only Payment') 
+                                : (language === 'kh' ? '💵 បង់ទាំងដើមទាំងការ' : '💵 Principal + Interest')}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>{language === 'kh' ? 'កាលបរិច្ឆេទខ្ចី៖' : 'Loan Date:'}</span>
+                            <span className="text-slate-800 font-bold">{formatKhmerDate(borrower.loanDate)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>{language === 'kh' ? 'វគ្គបង់ប្រាក់៖' : 'Payment Frequency:'}</span>
+                            <span className="text-slate-800 font-bold">
+                              {borrower.frequency === 'daily' 
+                                ? (language === 'kh' ? 'រាល់ថ្ងៃ' : 'Daily') 
+                                : borrower.frequency === 'weekly' 
+                                  ? (language === 'kh' ? 'រាល់សប្តាហ៍' : 'Weekly') 
+                                  : (language === 'kh' ? 'រាល់ខែ' : 'Monthly')}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>{language === 'kh' ? 'បង់ប្រាក់ក្នុងមួយដង៖' : 'Term Installment Amount:'}</span>
+                            <span className="text-blue-600 font-extrabold">{formatMoney(borrower.installmentAmount, borrower.currency)}</span>
+                          </div>
+                          {borrower.notes && (
+                            <div className="pt-2 text-[11px] text-slate-400 border-t border-slate-200">
+                              <span className="font-bold block text-slate-500 mb-0.5">{language === 'kh' ? 'កំណត់ចំណាំ៖' : 'Notes:'}</span>
+                              <p className="whitespace-pre-line text-slate-600 leading-relaxed font-bold bg-white p-2 border border-slate-100 rounded-lg">{borrower.notes}</p>
+                            </div>
+                          )}
+                          {borrower.noticeMessage && (
+                            <div className="pt-2 text-[11px] border-t border-slate-200">
+                              <span className="font-bold block text-amber-600 flex items-center gap-1 mb-1">
+                                <span>📣</span>
+                                <span>{language === 'kh' ? 'សារជូនដំណឹងរំលឹកកូនបំណុល៖' : 'Borrower Alert Notice:'}</span>
+                              </span>
+                              <p className="whitespace-pre-line text-slate-700 font-bold bg-amber-50 border border-amber-200/60 p-2.5 rounded-xl leading-relaxed">{borrower.noticeMessage}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
 
-              {/* Installment Boxes grid */}
-              <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-6 gap-3 pt-2 overflow-y-auto max-h-[300px] md:max-h-[380px] p-1 border border-slate-100 rounded-xl">
-                {Array.from({ length: borrower.duration }).map((_, index) => {
-                  const payment = paymentBySlot[index];
-                  const isPaid = !!payment;
+                    {/* Column 1 Right: Standing, Auto Check-In, Custom Payment Form (6 cols) */}
+                    <div className="lg:col-span-6 space-y-6">
+                      {/* Borrower standing status picker */}
+                      <div className="bg-slate-50 p-4.5 rounded-2xl border border-slate-200 space-y-3 shadow-sm">
+                        <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
+                          <span>🌟</span> {language === 'kh' ? 'ស្ថានភាពកូនបំណុល' : 'Borrower Standing Rating'}
+                        </h4>
+                        <div className="grid grid-cols-3 gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => onUpdateStatus(borrower.id, 'good')}
+                            className={`py-2 px-1 text-[11px] font-bold rounded-xl border text-center transition cursor-pointer flex flex-col items-center justify-center gap-1 ${
+                              borrower.statusTag === 'good'
+                                ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm shadow-emerald-600/20'
+                                : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
+                            }`}
+                          >
+                            <span className="text-sm">🟢</span>
+                            <span>{language === 'kh' ? 'ល្អ (Good)' : 'Good'}</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onUpdateStatus(borrower.id, 'regular')}
+                            className={`py-2 px-1 text-[11px] font-bold rounded-xl border text-center transition cursor-pointer flex flex-col items-center justify-center gap-1 ${
+                              borrower.statusTag === 'regular' || !borrower.statusTag
+                                ? 'bg-amber-500 text-white border-amber-500 shadow-sm shadow-amber-500/20'
+                                : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
+                            }`}
+                          >
+                            <span className="text-sm">🟡</span>
+                            <span>{language === 'kh' ? 'ធម្មតា (Regular)' : 'Regular'}</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onUpdateStatus(borrower.id, 'late')}
+                            className={`py-2 px-1 text-[11px] font-bold rounded-xl border text-center transition cursor-pointer flex flex-col items-center justify-center gap-1 ${
+                              borrower.statusTag === 'late'
+                                ? 'bg-rose-600 text-white border-rose-600 shadow-sm shadow-rose-600/20 animate-pulse'
+                                : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
+                            }`}
+                          >
+                            <span className="text-sm">🔴</span>
+                            <span>{language === 'kh' ? 'យឺតយ៉ាវ (Late)' : 'Late/Slow'}</span>
+                          </button>
+                        </div>
+                      </div>
 
-                  return (
-                    <button
-                      key={index}
-                      id={`day-box-${index}`}
-                      onClick={() => handleBoxClick(index)}
-                      className={`aspect-square p-2 rounded-xl flex flex-col justify-between items-center border transition-all duration-150 cursor-pointer ${isPaid ? 'bg-emerald-500 border-emerald-600 text-white shadow-sm shadow-emerald-500/10 hover:bg-emerald-600' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700 hover:border-slate-300'}`}
-                    >
-                      <span className="text-[10px] font-bold opacity-75 uppercase">{language === 'kh' ? 'វគ្គទី' : 'Term'}</span>
-                      <span className="text-lg font-extrabold leading-none">{index + 1}</span>
-                      {isPaid ? (
-                        <Check className="w-3.5 h-3.5 mt-0.5" />
-                      ) : (
-                        <span className="text-[9px] font-semibold opacity-60">
-                          {formatMoney(borrower.installmentAmount, borrower.currency).replace('៛', '៛').split(' ')[0]}
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Instructions */}
-              <div className="flex flex-wrap gap-x-4 gap-y-1 pt-2 text-[11px] text-slate-400">
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full border border-emerald-600" />
-                  <span>{language === 'kh' ? 'បង់រួច (Paid)' : 'Paid'}</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 bg-slate-100 rounded-full border border-slate-200" />
-                  <span>{language === 'kh' ? 'នៅសល់ (Unpaid)' : 'Unpaid'}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Payment Reminder Textbox Card */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3 shadow-sm flex flex-col">
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <h3 className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-                    <MessageSquare className="w-4 h-4 text-blue-600" />
-                    <span>📣 {language === 'kh' ? 'សារជូនដំណឹងសងប្រាក់ (Reminder Message)' : 'SMS Payment Reminder Message'}</span>
-                  </h3>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
-                    {language === 'kh' ? 'អ្នកអាចសរសេរ ឬកែសម្រួលសារជូនដំណឹងនេះ រួចចម្លងដើម្បីផ្ញើទៅកាន់កូនបំណុលរបស់អ្នក។' : 'You can customize this text message and copy it to send as SMS, Telegram, etc.'}
-                  </p>
-                </div>
-              </div>
-
-              {/* Template Presets */}
-              <div className="flex flex-wrap gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => setReminderMessage(getDefaultTemplate('general'))}
-                  className="px-2.5 py-1 text-[10px] font-bold rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600 transition flex items-center gap-1 cursor-pointer"
-                >
-                  🔔 {language === 'kh' ? 'សារទូទៅ' : 'General'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setReminderMessage(getDefaultTemplate('urgent'))}
-                  className="px-2.5 py-1 text-[10px] font-bold rounded-lg border border-rose-100 bg-rose-50 hover:bg-rose-100/75 text-rose-700 transition flex items-center gap-1 cursor-pointer"
-                >
-                  ⚠️ {language === 'kh' ? 'សាររំលឹកបន្ទាន់' : 'Urgent Notice'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setReminderMessage(getDefaultTemplate('thanks'))}
-                  className="px-2.5 py-1 text-[10px] font-bold rounded-lg border border-emerald-100 bg-emerald-50 hover:bg-emerald-100/75 text-emerald-700 transition flex items-center gap-1 cursor-pointer"
-                >
-                  🎉 {language === 'kh' ? 'សារថ្លែងអំណរគុណ' : 'Thank You'}
-                </button>
-              </div>
-
-              {/* Message Textarea */}
-              <div className="relative">
-                <textarea
-                  value={reminderMessage}
-                  onChange={(e) => setReminderMessage(e.target.value)}
-                  rows={4}
-                  className="w-full p-3 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-bold text-slate-700 leading-relaxed resize-none"
-                  placeholder={language === 'kh' ? "សរសេរសារជូនដំណឹងនៅទីនេះ..." : "Write message here..."}
-                />
-              </div>
-
-              {/* Action buttons */}
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={handleCopyMessage}
-                  className={`flex-1 py-2 text-xs font-bold rounded-xl border flex items-center justify-center gap-2 transition duration-150 cursor-pointer ${
-                    msgCopied
-                      ? 'bg-emerald-600 text-white border-emerald-500 shadow-sm shadow-emerald-600/20'
-                      : 'bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 border-blue-600 shadow-sm shadow-blue-600/15'
-                  }`}
-                >
-                  {msgCopied ? (
-                    <>
-                      <Check className="w-4 h-4 stroke-[3px]" />
-                      <span>{language === 'kh' ? 'បានចម្លងសារជូនដំណឹងរួចរាល់!' : 'Reminder Message Copied!'}</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-4 h-4" />
-                      <span>{language === 'kh' ? 'ចម្លងសារ និងតំណភ្ជាប់' : 'Copy Reminder Message'}</span>
-                    </>
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    const isFullyPaid = remaining <= 0;
-                    setReminderMessage(getDefaultTemplate(isFullyPaid ? 'thanks' : 'general'));
-                  }}
-                  className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-xl border border-slate-200 transition cursor-pointer flex items-center justify-center"
-                  title={language === 'kh' ? "កំណត់ឡើងវិញ" : "Reset Template"}
-                >
-                  <RotateCcw className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )}
-
-        {/* Bottom row: Payment History Logs */}
-        <div className="p-6 border-t border-slate-200 bg-slate-50/50 rounded-b-2xl overflow-y-auto max-h-[220px]">
-          <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">🕒 {language === 'kh' ? 'ប្រវត្តិនៃការបង់ប្រាក់ (Payment History)' : 'Payment History Logs'}</h3>
-          
-          {borrower.payments.length === 0 ? (
-            <div className="text-center py-6 text-slate-400 text-sm">
-              {language === 'kh' ? 'មិនទាន់មានប្រវត្តិបង់ប្រាក់នៅឡើយទេ។' : 'No payment history logged yet.'}
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead>
-                  <tr className="border-b border-slate-200 text-slate-400 font-bold uppercase">
-                    <th className="py-2 px-3">{language === 'kh' ? 'ថ្ងៃបង់ប្រាក់' : 'Payment Date'}</th>
-                    <th className="py-2 px-3">{language === 'kh' ? 'ចំនួនទឹកប្រាក់' : 'Amount'}</th>
-                    <th className="py-2 px-3">{language === 'kh' ? 'ប្រភេទការបង់' : 'Payment Type'}</th>
-                    <th className="py-2 px-3">{language === 'kh' ? 'កំណត់សម្គាល់' : 'Notes/Memo'}</th>
-                    <th className="py-2 px-3 text-right">{language === 'kh' ? 'សកម្មភាព' : 'Action'}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 font-semibold text-slate-600">
-                  {[...borrower.payments].reverse().map((pay) => (
-                    <tr key={pay.id} className="hover:bg-slate-100/50">
-                      <td className="py-2 px-3 text-slate-800">{formatKhmerDate(pay.date)}</td>
-                      <td className="py-2 px-3 text-blue-600 font-extrabold">{formatMoney(pay.amount, borrower.currency)}</td>
-                      <td className="py-2 px-3">
-                        {pay.installmentIndex !== -1 ? (
-                          <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-md text-[10px] font-bold">
-                            {language === 'kh' ? `វគ្គទី ${pay.installmentIndex + 1}` : `Term ${pay.installmentIndex + 1}`}
-                          </span>
-                        ) : (
-                          <span className="px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-md text-[10px] font-bold">
-                            {language === 'kh' ? 'បង់តាមចិត្ត' : 'Custom'}
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-2 px-3 text-slate-400 italic max-w-[200px] truncate">{pay.note || '-'}</td>
-                      <td className="py-2 px-3 text-right">
+                      {/* Auto Check-In Toggle Option */}
+                      <div className="bg-slate-50 p-4.5 rounded-2xl border border-slate-200 flex items-center justify-between gap-4 shadow-sm">
+                        <div className="space-y-0.5">
+                          <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                            <span>🔄</span> {t('toggleAutoCheckInLabel')}
+                          </h4>
+                          <p className="text-[10px] text-slate-400 font-semibold leading-relaxed">
+                            {t('toggleAutoCheckInDesc')}
+                          </p>
+                        </div>
                         <button
-                          onClick={() => {
-                            const confirmMsg = language === 'kh'
-                              ? 'តើអ្នកចង់លុបការបង់ប្រាក់នេះឡើងវិញមែនទេ?'
-                              : 'Are you sure you want to delete this payment record?';
-                            if (confirm(confirmMsg)) {
-                              onDeletePayment(borrower.id, pay.id);
-                            }
-                          }}
-                          className="p-1 hover:bg-rose-50 text-rose-500 hover:text-rose-700 rounded-md transition cursor-pointer"
+                          type="button"
+                          onClick={() => onToggleAutoCheckIn && onToggleAutoCheckIn(borrower.id)}
+                          disabled={!onToggleAutoCheckIn}
+                          className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                            borrower.autoCheckIn ? 'bg-blue-600' : 'bg-slate-200'
+                          } ${!onToggleAutoCheckIn ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <span
+                            className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                              borrower.autoCheckIn ? 'translate-x-5' : 'translate-x-0'
+                            }`}
+                          />
                         </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+                      </div>
+
+                      {/* Custom Payment Form */}
+                      <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-4 shadow-sm">
+                        <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                          <span>📝 {language === 'kh' ? 'បញ្ចូលការបង់ប្រាក់តាមចិត្ត' : 'Custom Payment Entry'}</span>
+                        </h3>
+                        <form onSubmit={handleCustomPaymentSubmit} className="space-y-3">
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{language === 'kh' ? 'ទឹកប្រាក់សង' : 'Amount Paid'}</label>
+                              <div className="relative">
+                                <input
+                                  type="number"
+                                  value={customAmount}
+                                  onChange={(e) => setCustomAmount(e.target.value)}
+                                  placeholder={borrower.installmentAmount.toString()}
+                                  className="w-full pl-3 pr-7 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-bold text-slate-800"
+                                  min="0.01"
+                                  step="any"
+                                  required
+                                />
+                                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                                  {borrower.currency === 'USD' ? '$' : '៛'}
+                                </span>
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{language === 'kh' ? 'ថ្ងៃបង់ប្រាក់' : 'Payment Date'}</label>
+                              <input
+                                type="date"
+                                value={customDate}
+                                onChange={(e) => setCustomDate(e.target.value)}
+                                className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium"
+                                required
+                              />
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{language === 'kh' ? 'ការសម្គាល់បន្ថែម' : 'Note / Memo'}</label>
+                            <input
+                              type="text"
+                              value={customNote}
+                              onChange={(e) => setCustomNote(e.target.value)}
+                              placeholder={language === 'kh' ? "ឧ. បង់បន្ថែមសម្រាប់ថ្ងៃអាទិត្យ" : "e.g., extra payment on Sunday"}
+                              className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium"
+                            />
+                          </div>
+
+                          <button
+                            type="submit"
+                            className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold rounded-xl text-xs transition duration-150 flex items-center justify-center gap-1 cursor-pointer"
+                          >
+                            <Plus className="w-4 h-4" />
+                            <span>{language === 'kh' ? 'កត់ត្រាការបង់ប្រាក់' : 'Record Payment'}</span>
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        )}
 
         {/* Copy Payment Link & Reminder Message Modal */}
         {isShareModalOpen && (
@@ -1593,7 +1658,21 @@ export default function BorrowerDetail({
             }
           }}
         />
-      </div>
-    </div>
+
+        {/* Reusable Frame Selection Modal */}
+        <FrameSelectorModal
+          isOpen={isFrameModalOpen}
+          onClose={() => setIsFrameModalOpen(false)}
+          currentFrameId={borrower.avatarFrame}
+          onSelectFrame={(frameId) => {
+            if (onEditBorrower) {
+              onEditBorrower(borrower.id, { avatarFrame: frameId });
+            }
+          }}
+          borrowerName={borrower.name}
+          photoUrl={borrower.profilePhoto}
+        />
+      </motion.div>
+    </motion.div>
   );
 }

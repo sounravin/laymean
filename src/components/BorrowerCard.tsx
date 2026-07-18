@@ -3,6 +3,7 @@ import { Borrower } from '../types';
 import { formatMoney, formatKhmerDate } from '../utils';
 import { Calendar, Phone, CheckCircle, Clock, Check } from 'lucide-react';
 import { useLanguage } from '../i18n';
+import AvatarWithFrame from './AvatarWithFrame';
 
 interface BorrowerCardProps {
   borrower: Borrower;
@@ -16,7 +17,8 @@ export default function BorrowerCard({ borrower, onSelect, onQuickPay, isSelecte
   const { t } = useLanguage();
 
   // Calculate payments
-  const totalPaid = borrower.payments.reduce((sum, p) => sum + p.amount, 0);
+  const payments = Array.isArray(borrower.payments) ? borrower.payments : [];
+  const totalPaid = payments.reduce((sum, p) => sum + (p?.amount || 0), 0);
   const remaining = Math.max(0, borrower.totalToPay - totalPaid);
   
   // Progress percentage
@@ -25,7 +27,7 @@ export default function BorrowerCard({ borrower, onSelect, onQuickPay, isSelecte
   const isCompleted = remaining <= 0;
   
   // Find if there is an installment left
-  const paidIndices = borrower.payments.map(p => p.installmentIndex);
+  const paidIndices = payments.map(p => p?.installmentIndex);
   let nextInstallmentIndex = -1;
   for (let i = 0; i < borrower.duration; i++) {
     if (!paidIndices.includes(i)) {
@@ -74,21 +76,14 @@ export default function BorrowerCard({ borrower, onSelect, onQuickPay, isSelecte
             </button>
           )}
 
-          {/* Avatar Container */}
-          <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center shrink-0 shadow-sm">
-            {borrower.profilePhoto ? (
-              <img
-                src={borrower.profilePhoto}
-                alt={borrower.name}
-                className="w-full h-full object-cover"
-                referrerPolicy="no-referrer"
-              />
-            ) : (
-              <span className="text-sm font-extrabold text-slate-500">
-                {borrower.name.charAt(0).toUpperCase()}
-              </span>
-            )}
-          </div>
+          {/* Avatar Container with Animated Frame support */}
+          <AvatarWithFrame
+            photoUrl={borrower.profilePhoto}
+            name={borrower.name}
+            frameId={borrower.avatarFrame}
+            size="sm"
+            className="shrink-0"
+          />
           <div className="space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
               <h3 className="font-bold text-slate-800 text-base leading-tight">
@@ -131,7 +126,7 @@ export default function BorrowerCard({ borrower, onSelect, onQuickPay, isSelecte
           <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold bg-blue-50 text-blue-700 rounded-full border border-blue-100 shrink-0">
             <Clock className="w-3.5 h-3.5" />
             {t('activeLabel')
-              .replace('{current}', String(borrower.payments.length))
+              .replace('{current}', String(payments.length))
               .replace('{total}', String(borrower.duration))}
           </span>
         )}

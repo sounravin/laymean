@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
-Disallow: /api/
+Allow: /sitemap.xml
+Allow: /sitemap.xsl
 
 Sitemap: https://luypay.vercel.app/sitemap.xml

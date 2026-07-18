@@ -54,13 +54,18 @@ import { Borrower, Payment } from './types';
 
 export function runAutoCheckInForBorrowers(borrowers: Borrower[]): { updatedList: Borrower[], hasChanges: boolean } {
   let hasChanges = false;
-  const updatedList = borrowers.map((borrower) => {
-    if (!borrower.autoCheckIn) return borrower;
+  const updatedList = (borrowers || []).map((borrower) => {
+    const payments = Array.isArray(borrower.payments) ? [...borrower.payments] : [];
+    if (!borrower.autoCheckIn) {
+      if (!Array.isArray(borrower.payments)) {
+        return { ...borrower, payments: [] };
+      }
+      return borrower;
+    }
 
-    const payments = [...borrower.payments];
     const paymentBySlot: Record<number, Payment> = {};
     payments.forEach((p) => {
-      if (p.installmentIndex !== -1) {
+      if (p && p.installmentIndex !== -1) {
         paymentBySlot[p.installmentIndex] = p;
       }
     });
@@ -118,11 +123,12 @@ export function runAutoCheckInForBorrowers(borrowers: Borrower[]): { updatedList
 }
 
 export function getDaysUntilNextPayment(borrower: Borrower): number | null {
-  const totalPaid = borrower.payments.reduce((sum, p) => sum + p.amount, 0);
+  const payments = Array.isArray(borrower.payments) ? borrower.payments : [];
+  const totalPaid = payments.reduce((sum, p) => sum + (p?.amount || 0), 0);
   const isCompleted = totalPaid >= borrower.totalToPay;
   if (isCompleted || borrower.isArchived) return null;
 
-  const paidIndices = borrower.payments.map((p) => p.installmentIndex);
+  const paidIndices = payments.filter(p => p !== undefined).map((p) => p.installmentIndex);
   let nextIndex = -1;
   for (let i = 0; i < borrower.duration; i++) {
     if (!paidIndices.includes(i)) {

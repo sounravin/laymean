@@ -6,6 +6,8 @@ import { useLanguage } from '../i18n';
 import { doc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import LiveChat from './LiveChat';
+import AvatarWithFrame from './AvatarWithFrame';
+import FrameSelectorModal from './FrameSelectorModal';
 
 interface BorrowerPortalProps {
   borrower: Borrower;
@@ -15,8 +17,10 @@ interface BorrowerPortalProps {
 
 export default function BorrowerPortal({ borrower, onBackToLender, isLenderLoggedIn }: BorrowerPortalProps) {
   const { language } = useLanguage();
+  const payments = Array.isArray(borrower.payments) ? borrower.payments : [];
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isQrZoomOpen, setIsQrZoomOpen] = useState(false);
+  const [isFrameModalOpen, setIsFrameModalOpen] = useState(false);
   const [lenderProfile, setLenderProfile] = useState<any>(null);
   
   // Real-time Portal Configuration from Firestore settings/portal_config
@@ -71,15 +75,15 @@ export default function BorrowerPortal({ borrower, onBackToLender, isLenderLogge
     }
   };
   // Calculate stats
-  const totalPaid = borrower.payments.reduce((sum, p) => sum + p.amount, 0);
+  const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
   const remaining = Math.max(0, borrower.totalToPay - totalPaid);
   const progressPercent = Math.min(100, Math.round((totalPaid / borrower.totalToPay) * 100));
   const isCompleted = remaining <= 0;
 
   // Map payments by installment index for easy grid lookup
   const paymentBySlot: Record<number, Payment> = {};
-  borrower.payments.forEach((p) => {
-    if (p.installmentIndex !== -1) {
+  payments.forEach((p) => {
+    if (p && p.installmentIndex !== -1) {
       paymentBySlot[p.installmentIndex] = p;
     }
   });
@@ -194,19 +198,15 @@ export default function BorrowerPortal({ borrower, onBackToLender, isLenderLogge
         <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 flex-1">
             {/* Profile Photo */}
-            <div className="w-16 h-16 rounded-full bg-slate-100 border-2 border-slate-200 overflow-hidden flex items-center justify-center shrink-0 shadow-sm">
-              {borrower.profilePhoto ? (
-                <img
-                  src={borrower.profilePhoto}
-                  alt={borrower.name}
-                  className="w-full h-full object-cover"
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <span className="text-2xl font-black text-slate-400 uppercase">
-                  {borrower.name.charAt(0)}
-                </span>
-              )}
+            <div className="shrink-0 z-30">
+              <AvatarWithFrame
+                photoUrl={borrower.profilePhoto}
+                name={borrower.name}
+                frameId={borrower.avatarFrame}
+                size="md"
+                editable={true}
+                onClick={() => setIsFrameModalOpen(true)}
+              />
             </div>
             
             <div className="space-y-2 flex-1">
@@ -451,7 +451,7 @@ export default function BorrowerPortal({ borrower, onBackToLender, isLenderLogge
             <span>ប្រវត្តិនៃការបង់ប្រាក់សរុប (Detailed Payment Ledger)</span>
           </h3>
 
-          {borrower.payments.length === 0 ? (
+          {payments.length === 0 ? (
             <div className="text-center py-10 text-slate-400 text-xs font-bold bg-slate-50 rounded-2xl border border-dashed border-slate-200">
               មិនទាន់មានកាលកំណត់ ឬកត់ត្រាបង់ប្រាក់ណាមួយនៅឡើយទេ។
             </div>
@@ -467,7 +467,7 @@ export default function BorrowerPortal({ borrower, onBackToLender, isLenderLogge
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 font-bold text-slate-600">
-                  {[...borrower.payments].reverse().map((pay) => (
+                  {[...payments].reverse().map((pay) => (
                     <tr key={pay.id} className="hover:bg-slate-50/50 transition duration-100">
                       <td className="py-3 px-4 text-slate-800">{formatKhmerDate(pay.date)}</td>
                       <td className="py-3 px-4 text-blue-600 font-black text-sm">{formatMoney(pay.amount, borrower.currency)}</td>
@@ -605,6 +605,18 @@ export default function BorrowerPortal({ borrower, onBackToLender, isLenderLogge
         isOpen={isChatOpen}
         onClose={() => setIsChatOpen(false)}
         onUpdateBorrower={handleUpdateBorrower}
+      />
+
+      {/* Frame Selection Modal for Borrower Self-Selection */}
+      <FrameSelectorModal
+        isOpen={isFrameModalOpen}
+        onClose={() => setIsFrameModalOpen(false)}
+        currentFrameId={borrower.avatarFrame}
+        onSelectFrame={(frameId) => {
+          handleUpdateBorrower({ avatarFrame: frameId });
+        }}
+        borrowerName={borrower.name}
+        photoUrl={borrower.profilePhoto}
       />
     </div>
   );

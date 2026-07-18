@@ -12,6 +12,7 @@ import { Search, Info, Check, CheckSquare, RefreshCw, Star, Lock, LogOut, Shield
 import { collection, query, where, onSnapshot, doc, setDoc, deleteDoc, writeBatch, getDoc } from 'firebase/firestore';
 import { db } from './lib/firebase';
 import { useLanguage } from './i18n';
+import { AnimatePresence } from 'motion/react';
 
 const LOCAL_STORAGE_KEY = 'luypay_ledger_borrowers';
 
@@ -1242,12 +1243,16 @@ export default function App() {
     if (isLoggedIn) {
       setCloudSyncStatus('syncing');
       try {
-        const batch = writeBatch(db);
-        newList.forEach((b) => {
-          const docRef = doc(db, 'borrowers', b.id);
-          batch.set(docRef, { ...b, userId: currentUser });
-        });
-        await batch.commit();
+        const CHUNK_SIZE = 400;
+        for (let i = 0; i < newList.length; i += CHUNK_SIZE) {
+          const chunk = newList.slice(i, i + CHUNK_SIZE);
+          const batch = writeBatch(db);
+          chunk.forEach((b) => {
+            const docRef = doc(db, 'borrowers', b.id);
+            batch.set(docRef, { ...b, userId: currentUser });
+          });
+          await batch.commit();
+        }
         setCloudSyncStatus('synced');
       } catch (err) {
         console.error('Error syncing list to Firestore:', err);
@@ -1284,7 +1289,7 @@ export default function App() {
     let cUSD = 0, cKHR = 0;
 
     borrowers.forEach((b) => {
-      const totalPaid = b.payments.reduce((sum, p) => sum + p.amount, 0);
+      const totalPaid = Array.isArray(b.payments) ? b.payments.reduce((sum, p) => sum + (p?.amount || 0), 0) : 0;
       const isCompleted = totalPaid >= b.totalToPay;
 
       if (b.isArchived) {
@@ -1368,7 +1373,8 @@ export default function App() {
         if (!selectedBorrowerIds.includes(b.id)) return b;
 
         // Find all unpaid indices
-        const paidIndices = b.payments.map(p => p.installmentIndex);
+        const bPayments = Array.isArray(b.payments) ? b.payments : [];
+        const paidIndices = bPayments.map(p => p?.installmentIndex);
         const newPaymentsToAdd: Payment[] = [];
 
         for (let i = 0; i < b.duration; i++) {
@@ -1389,7 +1395,7 @@ export default function App() {
 
         return {
           ...b,
-          payments: [...b.payments, ...newPaymentsToAdd],
+          payments: [...bPayments, ...newPaymentsToAdd],
         };
       });
 
@@ -1407,7 +1413,8 @@ export default function App() {
     if (!borrower) return;
 
     // Find the first unpaid installment slot index
-    const paidSlots = borrower.payments.map(p => p.installmentIndex);
+    const bPayments = Array.isArray(borrower.payments) ? borrower.payments : [];
+    const paidSlots = bPayments.map(p => p?.installmentIndex);
     let nextUnpaidSlot = -1;
     for (let i = 0; i < borrower.duration; i++) {
       if (!paidSlots.includes(i)) {
@@ -1433,7 +1440,7 @@ export default function App() {
       if (b.id === borrowerId) {
         return {
           ...b,
-          payments: [...b.payments, newPayment],
+          payments: [...(b.payments || []), newPayment],
         };
       }
       return b;
@@ -1453,7 +1460,7 @@ export default function App() {
       if (b.id === borrowerId) {
         return {
           ...b,
-          payments: [...b.payments, newPayment],
+          payments: [...(b.payments || []), newPayment],
         };
       }
       return b;
@@ -1468,7 +1475,7 @@ export default function App() {
       if (b.id === borrowerId) {
         return {
           ...b,
-          payments: b.payments.filter((p) => p.id !== paymentId),
+          payments: (b.payments || []).filter((p) => p && p.id !== paymentId),
         };
       }
       return b;
@@ -1628,7 +1635,7 @@ export default function App() {
   // Filter borrowers list based on tab, standing, & search query
   const filteredBorrowers = borrowers.filter((b) => {
     // 1. Filter by Tab
-    const totalPaid = b.payments.reduce((sum, p) => sum + p.amount, 0);
+    const totalPaid = Array.isArray(b.payments) ? b.payments.reduce((sum, p) => sum + (p?.amount || 0), 0) : 0;
     const isCompleted = totalPaid >= b.totalToPay;
 
     if (filterTab === 'active') {
@@ -2794,7 +2801,7 @@ export default function App() {
               <span>{t('activeLoanLabel')}</span>
             </span>
             <span className={`px-2 py-0.5 text-[9px] rounded-lg font-bold ${activeSection === 'ledger' && filterTab === 'active' ? 'bg-blue-700 text-white' : 'bg-slate-800 text-slate-400'}`}>
-              {borrowers.filter(b => !b.isArchived && b.payments.reduce((sum, p) => sum + p.amount, 0) < b.totalToPay).length}
+              {borrowers.filter(b => !b.isArchived && (Array.isArray(b.payments) ? b.payments.reduce((sum, p) => sum + (p?.amount || 0), 0) : 0) < b.totalToPay).length}
             </span>
           </button>
 
@@ -2807,7 +2814,7 @@ export default function App() {
               <span>{t('completedLoanLabel')}</span>
             </span>
             <span className={`px-2 py-0.5 text-[9px] rounded-lg font-bold ${activeSection === 'ledger' && filterTab === 'completed' ? 'bg-blue-700 text-white' : 'bg-slate-800 text-slate-400'}`}>
-              {borrowers.filter(b => !b.isArchived && b.payments.reduce((sum, p) => sum + p.amount, 0) >= b.totalToPay).length}
+              {borrowers.filter(b => !b.isArchived && (Array.isArray(b.payments) ? b.payments.reduce((sum, p) => sum + (p?.amount || 0), 0) : 0) >= b.totalToPay).length}
             </span>
           </button>
 
@@ -3349,13 +3356,13 @@ export default function App() {
                     onClick={() => setFilterTab('active')}
                     className={`px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${filterTab === 'active' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'}`}
                   >
-                    📝 {t('activeLoanLabel')} ({borrowers.filter(b => !b.isArchived && b.payments.reduce((sum, p) => sum + p.amount, 0) < b.totalToPay).length})
+                    📝 {t('activeLoanLabel')} ({borrowers.filter(b => !b.isArchived && (Array.isArray(b.payments) ? b.payments.reduce((sum, p) => sum + (p?.amount || 0), 0) : 0) < b.totalToPay).length})
                   </button>
                   <button
                     onClick={() => setFilterTab('completed')}
                     className={`px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${filterTab === 'completed' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'}`}
                   >
-                    ✅ {t('completedLoanLabel')} ({borrowers.filter(b => !b.isArchived && b.payments.reduce((sum, p) => sum + p.amount, 0) >= b.totalToPay).length})
+                    ✅ {t('completedLoanLabel')} ({borrowers.filter(b => !b.isArchived && (Array.isArray(b.payments) ? b.payments.reduce((sum, p) => sum + (p?.amount || 0), 0) : 0) >= b.totalToPay).length})
                   </button>
                   <button
                     onClick={() => setFilterTab('archived')}
@@ -3486,7 +3493,7 @@ export default function App() {
                           statusColorClass = 'bg-amber-100 text-amber-800 border-amber-200';
                         }
 
-                        const totalPaid = b.payments.reduce((sum, p) => sum + p.amount, 0);
+                        const totalPaid = Array.isArray(b.payments) ? b.payments.reduce((sum, p) => sum + (p?.amount || 0), 0) : 0;
                         const remaining = Math.max(0, b.totalToPay - totalPaid);
 
                         return (
@@ -3643,19 +3650,21 @@ export default function App() {
       />
 
       {/* Detail & Card-Checkboard Overlay */}
-      {selectedBorrower && (
-        <BorrowerDetail
-          borrower={selectedBorrower}
-          onClose={() => setSelectedBorrowerId(null)}
-          onAddPayment={handleAddPaymentDetail}
-          onDeletePayment={handleDeletePayment}
-          onDeleteBorrower={handleDeleteBorrower}
-          onToggleArchive={handleToggleArchive}
-          onUpdateStatus={handleUpdateBorrowerStatus}
-          onToggleAutoCheckIn={handleToggleAutoCheckIn}
-          onEditBorrower={handleEditBorrower}
-        />
-      )}
+      <AnimatePresence>
+        {selectedBorrower && (
+          <BorrowerDetail
+            borrower={selectedBorrower}
+            onClose={() => setSelectedBorrowerId(null)}
+            onAddPayment={handleAddPaymentDetail}
+            onDeletePayment={handleDeletePayment}
+            onDeleteBorrower={handleDeleteBorrower}
+            onToggleArchive={handleToggleArchive}
+            onUpdateStatus={handleUpdateBorrowerStatus}
+            onToggleAutoCheckIn={handleToggleAutoCheckIn}
+            onEditBorrower={handleEditBorrower}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Settings Modal (Language, Theme, and Profile Photo Selection) */}
       {isSettingsOpen && (

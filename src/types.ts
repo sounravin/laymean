@@ -33,6 +33,7 @@ export interface Borrower {
   noticeMessage?: string; // custom announcement/alert notice for the borrower
   chatMessages?: ChatMessage[]; // live chat/discussion with borrower
   profilePhoto?: string; // base64 encoded profile photo string
+  avatarFrame?: string; // custom avatar animated frame template ID
   coverPhoto?: string; // base64 encoded cover photo string
   paymentQr?: string; // base64 encoded payment QR code image URL
   userId?: string; // The username of the member who owns this borrower
