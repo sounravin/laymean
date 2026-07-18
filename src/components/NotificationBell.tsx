@@ -9,9 +9,10 @@ interface NotificationBellProps {
   borrowers: Borrower[];
   onSelectBorrower: (id: string) => void;
   isMobile?: boolean;
+  sidebarMode?: boolean;
 }
 
-export default function NotificationBell({ borrowers, onSelectBorrower, isMobile = false }: NotificationBellProps) {
+export default function NotificationBell({ borrowers, onSelectBorrower, isMobile = false, sidebarMode = false }: NotificationBellProps) {
   const { t, language } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -46,20 +47,22 @@ export default function NotificationBell({ borrowers, onSelectBorrower, isMobile
       <button
         onClick={toggleDropdown}
         className={`relative flex items-center justify-center rounded-xl transition cursor-pointer border border-transparent select-none focus:outline-none ${
-          isMobile
+          sidebarMode
+            ? 'p-1.5 text-slate-400 hover:text-amber-400 hover:bg-slate-800 rounded-md'
+            : isMobile
             ? 'p-2 bg-slate-800 hover:bg-slate-750 active:bg-slate-850 text-amber-400'
             : 'p-2.5 bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border-slate-200 shadow-xs'
         }`}
         title={language === 'kh' ? 'ការជូនដំណឹងត្រូវទូទាត់ប្រាក់' : 'Payment Notifications'}
       >
-        <Bell className={`w-4 h-4 ${dueSoonList.length > 0 ? 'animate-wiggle text-amber-500' : ''}`} />
+        <Bell className={`${sidebarMode ? 'w-3.5 h-3.5' : 'w-4 h-4'} ${dueSoonList.length > 0 ? 'animate-wiggle text-amber-500' : ''}`} />
         
         {/* Count Badge Alert with Ping Effect */}
         {dueSoonList.length > 0 && (
           <>
-            <span className="absolute -top-1 -right-1 flex h-4.5 w-4.5">
+            <span className={`absolute ${sidebarMode ? '-top-0.5 -right-0.5 h-3.5 w-3.5' : '-top-1 -right-1 h-4.5 w-4.5'} flex`}>
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-4.5 w-4.5 bg-rose-500 text-[9px] font-black text-white items-center justify-center shadow-xs">
+              <span className={`relative inline-flex rounded-full bg-rose-500 text-white items-center justify-center shadow-xs font-black ${sidebarMode ? 'h-3.5 w-3.5 text-[7.5px]' : 'h-4.5 w-4.5 text-[9px]'}`}>
                 {dueSoonList.length}
               </span>
             </span>
@@ -82,12 +85,26 @@ export default function NotificationBell({ borrowers, onSelectBorrower, isMobile
               />
             )}
             <motion.div
-              initial={isMobile ? { opacity: 0, y: -16, scale: 0.95 } : { opacity: 0, y: 12, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={isMobile ? { opacity: 0, y: -12, scale: 0.95 } : { opacity: 0, y: 8, scale: 0.95 }}
-              transition={{ duration: 0.15, ease: 'easeOut' }}
+              initial={
+                sidebarMode
+                  ? { opacity: 0, x: -20, scale: 0.95 }
+                  : isMobile
+                  ? { opacity: 0, y: -16, scale: 0.95 }
+                  : { opacity: 0, y: 12, scale: 0.95 }
+              }
+              animate={{ opacity: 1, x: 0, y: 0, scale: 1 }}
+              exit={
+                sidebarMode
+                  ? { opacity: 0, x: -16, scale: 0.95 }
+                  : isMobile
+                  ? { opacity: 0, y: -12, scale: 0.95 }
+                  : { opacity: 0, y: 8, scale: 0.95 }
+              }
+              transition={{ duration: 0.18, ease: 'easeOut' }}
               className={`bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden ${
-                isMobile
+                sidebarMode
+                  ? 'absolute left-full top-0 ml-4 w-88 md:w-96 z-50 shadow-2xl origin-left border-slate-100'
+                  : isMobile
                   ? 'fixed top-[96px] left-4 right-4 max-w-[calc(100vw-32px)] sm:max-w-md mx-auto z-50 shadow-2xl'
                   : 'absolute mt-2 right-0 w-88 md:w-96 z-50'
               }`}

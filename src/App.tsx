@@ -2615,12 +2615,12 @@ export default function App() {
               <p className="text-[10px] text-slate-500 font-semibold tracking-wide">{t('appSubtitle')}</p>
             </div>
           </div>
-          <div className="flex items-center gap-1 bg-slate-800/60 p-1 rounded-lg border border-slate-700/40">
+          <div className="flex items-center gap-1 bg-slate-800/60 p-1 rounded-lg border border-slate-700/40 transform translate-x-3.5 translate-y-3 shrink-0">
             <a
               href="https://www.facebook.com/share/1F4p12PfJx/?mibextid=wwXIfr"
               target="_blank"
               rel="noopener noreferrer"
-              className="p-1 text-slate-400 hover:text-blue-500 rounded-md hover:bg-slate-750 transition"
+              className="p-1 text-slate-400 hover:text-blue-500 rounded-md hover:bg-slate-750 transition flex items-center justify-center"
               title="Facebook Link"
             >
               <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
@@ -2631,156 +2631,243 @@ export default function App() {
               href="https://t.me/laymeancamera"
               target="_blank"
               rel="noopener noreferrer"
-              className="p-1 text-slate-400 hover:text-sky-400 rounded-md hover:bg-slate-750 transition"
+              className="p-1 text-slate-400 hover:text-sky-400 rounded-md hover:bg-slate-750 transition flex items-center justify-center"
               title="Telegram Link"
             >
               <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.11.02-1.93 1.23-5.46 3.62-.51.35-.98.53-1.39.51-.46-.01-1.35-.26-2.01-.48-.81-.27-1.46-.42-1.4-.88.03-.24.36-.49.99-.75 3.88-1.69 6.47-2.8 7.77-3.32 3.7-1.49 4.47-1.75 4.97-1.76.11 0 .36.03.52.16.14.11.18.26.19.38 0 .09-.01.27-.02.39z"/>
               </svg>
             </a>
+            <div className="border-l border-slate-700/60 pl-1 ml-0.5 flex items-center shrink-0">
+              <NotificationBell
+                borrowers={borrowers}
+                onSelectBorrower={setSelectedBorrowerId}
+                sidebarMode={true}
+              />
+            </div>
           </div>
         </div>
 
         {/* Sidebar Navigation Links (Filter State Control) */}
-        <div className="space-y-1.5 flex-1">
-          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider px-2 mb-3">{t('categoryTitle')}</p>
+        <div className="space-y-2 flex-1">
+          <p className="text-[10px] text-slate-500 font-extrabold uppercase tracking-wider px-2.5 mb-2">{t('categoryTitle')}</p>
           
-          <button
+          <motion.button
+            whileHover={{ scale: 1.02, x: 4 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => { setFilterTab('active'); setActiveSection('ledger'); }}
-            className={`w-full flex items-center justify-between px-4 py-3 text-xs font-bold rounded-xl transition-all border duration-150 cursor-pointer ${activeSection === 'ledger' && filterTab === 'active' ? 'bg-blue-600 text-white border-blue-500 shadow-md shadow-blue-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60 border-transparent'}`}
+            className={`w-full flex items-center justify-between px-3.5 py-2.5 text-xs font-bold rounded-xl transition-all border duration-200 cursor-pointer ${
+              activeSection === 'ledger' && filterTab === 'active'
+                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-500/30 shadow-lg shadow-blue-600/25'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/50 border-transparent'
+            }`}
           >
             <span className="flex items-center gap-2.5">
               <span className="text-sm">📝</span>
               <span>{t('activeLoanLabel')}</span>
             </span>
-            <span className={`px-2 py-0.5 text-[9px] rounded-lg font-bold ${activeSection === 'ledger' && filterTab === 'active' ? 'bg-blue-700 text-white' : 'bg-slate-800 text-slate-400'}`}>
+            <span className={`px-2.5 py-0.5 text-[9px] rounded-lg font-black transition-all ${
+              activeSection === 'ledger' && filterTab === 'active'
+                ? 'bg-white/25 text-white'
+                : 'bg-slate-800 text-slate-400'
+            }`}>
               {borrowers.filter(b => !b.isArchived && (Array.isArray(b.payments) ? b.payments.reduce((sum, p) => sum + (p?.amount || 0), 0) : 0) < b.totalToPay).length}
             </span>
-          </button>
+          </motion.button>
 
-          <button
+          <motion.button
+            whileHover={{ scale: 1.02, x: 4 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => { setFilterTab('completed'); setActiveSection('ledger'); }}
-            className={`w-full flex items-center justify-between px-4 py-3 text-xs font-bold rounded-xl transition-all border duration-150 cursor-pointer ${activeSection === 'ledger' && filterTab === 'completed' ? 'bg-blue-600 text-white border-blue-500 shadow-md shadow-blue-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60 border-transparent'}`}
+            className={`w-full flex items-center justify-between px-3.5 py-2.5 text-xs font-bold rounded-xl transition-all border duration-200 cursor-pointer ${
+              activeSection === 'ledger' && filterTab === 'completed'
+                ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white border-emerald-500/30 shadow-lg shadow-emerald-600/25'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/50 border-transparent'
+            }`}
           >
             <span className="flex items-center gap-2.5">
               <span className="text-sm">✅</span>
               <span>{t('completedLoanLabel')}</span>
             </span>
-            <span className={`px-2 py-0.5 text-[9px] rounded-lg font-bold ${activeSection === 'ledger' && filterTab === 'completed' ? 'bg-blue-700 text-white' : 'bg-slate-800 text-slate-400'}`}>
+            <span className={`px-2.5 py-0.5 text-[9px] rounded-lg font-black transition-all ${
+              activeSection === 'ledger' && filterTab === 'completed'
+                ? 'bg-white/25 text-white'
+                : 'bg-slate-800 text-slate-400'
+            }`}>
               {borrowers.filter(b => !b.isArchived && (Array.isArray(b.payments) ? b.payments.reduce((sum, p) => sum + (p?.amount || 0), 0) : 0) >= b.totalToPay).length}
             </span>
-          </button>
+          </motion.button>
 
-          <button
+          <motion.button
+            whileHover={{ scale: 1.02, x: 4 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => { setFilterTab('archived'); setActiveSection('ledger'); }}
-            className={`w-full flex items-center justify-between px-4 py-3 text-xs font-bold rounded-xl transition-all border duration-150 cursor-pointer ${activeSection === 'ledger' && filterTab === 'archived' ? 'bg-blue-600 text-white border-blue-500 shadow-md shadow-blue-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60 border-transparent'}`}
+            className={`w-full flex items-center justify-between px-3.5 py-2.5 text-xs font-bold rounded-xl transition-all border duration-200 cursor-pointer ${
+              activeSection === 'ledger' && filterTab === 'archived'
+                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white border-indigo-500/30 shadow-lg shadow-indigo-600/25'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/50 border-transparent'
+            }`}
           >
             <span className="flex items-center gap-2.5">
               <span className="text-sm">📦</span>
               <span>{t('archivedLoanLabel')}</span>
             </span>
-            <span className={`px-2 py-0.5 text-[9px] rounded-lg font-bold ${activeSection === 'ledger' && filterTab === 'archived' ? 'bg-blue-700 text-white' : 'bg-slate-800 text-slate-400'}`}>
+            <span className={`px-2.5 py-0.5 text-[9px] rounded-lg font-black transition-all ${
+              activeSection === 'ledger' && filterTab === 'archived'
+                ? 'bg-white/25 text-white'
+                : 'bg-slate-800 text-slate-400'
+            }`}>
               {borrowers.filter(b => b.isArchived).length}
             </span>
-          </button>
+          </motion.button>
 
-          <button
+          <motion.button
+            whileHover={{ scale: 1.02, x: 4 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => { setFilterTab('all'); setActiveSection('ledger'); }}
-            className={`w-full flex items-center justify-between px-4 py-3 text-xs font-bold rounded-xl transition-all border duration-150 cursor-pointer ${activeSection === 'ledger' && filterTab === 'all' ? 'bg-blue-600 text-white border-blue-500 shadow-md shadow-blue-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60 border-transparent'}`}
+            className={`w-full flex items-center justify-between px-3.5 py-2.5 text-xs font-bold rounded-xl transition-all border duration-200 cursor-pointer ${
+              activeSection === 'ledger' && filterTab === 'all'
+                ? 'bg-gradient-to-r from-slate-700 to-slate-800 text-white border-slate-600 shadow-lg shadow-slate-700/25'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/50 border-transparent'
+            }`}
           >
             <span className="flex items-center gap-2.5">
               <span className="text-sm">🔍</span>
               <span>{t('allLoanLabel')}</span>
             </span>
-            <span className={`px-2 py-0.5 text-[9px] rounded-lg font-bold ${activeSection === 'ledger' && filterTab === 'all' ? 'bg-blue-700 text-white' : 'bg-slate-800 text-slate-400'}`}>
+            <span className={`px-2.5 py-0.5 text-[9px] rounded-lg font-black transition-all ${
+              activeSection === 'ledger' && filterTab === 'all'
+                ? 'bg-white/25 text-white'
+                : 'bg-slate-800 text-slate-400'
+            }`}>
               {borrowers.length}
             </span>
-          </button>
+          </motion.button>
         </div>
 
         {/* Sidebar Standing Filter Options */}
-        <div className="space-y-1.5 mt-5">
-          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider px-2 mb-3">{t('standingTitle')}</p>
+        <div className="space-y-2 mt-5">
+          <p className="text-[10px] text-slate-500 font-extrabold uppercase tracking-wider px-2.5 mb-2">{t('standingTitle')}</p>
           
-          <button
+          <motion.button
+            whileHover={{ scale: 1.01, x: 2 }}
+            whileTap={{ scale: 0.99 }}
             onClick={() => { setStandingFilter('all'); setActiveSection('ledger'); }}
-            className={`w-full flex items-center justify-between px-4 py-2.5 text-xs font-bold rounded-xl transition-all border duration-150 cursor-pointer ${activeSection === 'ledger' && standingFilter === 'all' ? 'bg-slate-800 text-white border-slate-700 shadow-md' : 'text-slate-400 hover:text-white hover:bg-slate-800/60 border-transparent'}`}
+            className={`w-full flex items-center justify-between px-3.5 py-2 text-xs font-bold rounded-xl transition-all border duration-200 cursor-pointer ${
+              activeSection === 'ledger' && standingFilter === 'all'
+                ? 'bg-slate-800 text-white border-slate-700/80 shadow-md'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/50 border-transparent'
+            }`}
           >
             <span className="flex items-center gap-2.5">
-              <span>🌟</span>
+              <span className="text-sm">🌟</span>
               <span>{t('standingAll')}</span>
             </span>
-          </button>
+          </motion.button>
 
-          <button
+          <motion.button
+            whileHover={{ scale: 1.01, x: 2 }}
+            whileTap={{ scale: 0.99 }}
             onClick={() => { setStandingFilter('good'); setActiveSection('ledger'); }}
-            className={`w-full flex items-center justify-between px-4 py-2.5 text-xs font-bold rounded-xl transition-all border duration-150 cursor-pointer ${activeSection === 'ledger' && standingFilter === 'good' ? 'bg-emerald-950/40 text-emerald-400 border-emerald-800/30 shadow-md' : 'text-slate-400 hover:text-white hover:bg-slate-800/60 border-transparent'}`}
+            className={`w-full flex items-center justify-between px-3.5 py-2 text-xs font-bold rounded-xl transition-all border duration-200 cursor-pointer ${
+              activeSection === 'ledger' && standingFilter === 'good'
+                ? 'bg-emerald-950/40 text-emerald-300 border-emerald-500/20 shadow-xs'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/50 border-transparent'
+            }`}
           >
             <span className="flex items-center gap-2.5">
-              <span>🟢</span>
+              <span className="text-sm">🟢</span>
               <span>{t('standingGood')}</span>
             </span>
-            <span className="px-2 py-0.5 text-[9px] rounded-lg font-bold bg-emerald-950 text-emerald-400">
+            <span className="px-2 py-0.5 text-[9px] rounded-lg font-black bg-emerald-950 text-emerald-400 border border-emerald-800/30">
               {borrowers.filter(b => b.statusTag === 'good').length}
             </span>
-          </button>
+          </motion.button>
 
-          <button
+          <motion.button
+            whileHover={{ scale: 1.01, x: 2 }}
+            whileTap={{ scale: 0.99 }}
             onClick={() => { setStandingFilter('regular'); setActiveSection('ledger'); }}
-            className={`w-full flex items-center justify-between px-4 py-2.5 text-xs font-bold rounded-xl transition-all border duration-150 cursor-pointer ${activeSection === 'ledger' && standingFilter === 'regular' ? 'bg-amber-950/40 text-amber-400 border-amber-800/30 shadow-md' : 'text-slate-400 hover:text-white hover:bg-slate-800/60 border-transparent'}`}
+            className={`w-full flex items-center justify-between px-3.5 py-2 text-xs font-bold rounded-xl transition-all border duration-200 cursor-pointer ${
+              activeSection === 'ledger' && standingFilter === 'regular'
+                ? 'bg-amber-950/40 text-amber-300 border-amber-500/20 shadow-xs'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/50 border-transparent'
+            }`}
           >
             <span className="flex items-center gap-2.5">
-              <span>🟡</span>
+              <span className="text-sm">🟡</span>
               <span>{t('standingRegular')}</span>
             </span>
-            <span className="px-2 py-0.5 text-[9px] rounded-lg font-bold bg-amber-950 text-amber-400">
+            <span className="px-2 py-0.5 text-[9px] rounded-lg font-black bg-amber-950 text-amber-400 border border-amber-800/30">
               {borrowers.filter(b => b.statusTag === 'regular' || b.statusTag === undefined).length}
             </span>
-          </button>
+          </motion.button>
 
-          <button
+          <motion.button
+            whileHover={{ scale: 1.01, x: 2 }}
+            whileTap={{ scale: 0.99 }}
             onClick={() => { setStandingFilter('late'); setActiveSection('ledger'); }}
-            className={`w-full flex items-center justify-between px-4 py-2.5 text-xs font-bold rounded-xl transition-all border duration-150 cursor-pointer ${activeSection === 'ledger' && standingFilter === 'late' ? 'bg-rose-950/40 text-rose-400 border-rose-800/30 shadow-md' : 'text-slate-400 hover:text-white hover:bg-slate-800/60 border-transparent'}`}
+            className={`w-full flex items-center justify-between px-3.5 py-2 text-xs font-bold rounded-xl transition-all border duration-200 cursor-pointer ${
+              activeSection === 'ledger' && standingFilter === 'late'
+                ? 'bg-rose-950/40 text-rose-300 border-rose-500/20 shadow-xs'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/50 border-transparent'
+            }`}
           >
             <span className="flex items-center gap-2.5">
-              <span>🔴</span>
+              <span className="text-sm">🔴</span>
               <span>{t('standingLate')}</span>
             </span>
-            <span className="px-2 py-0.5 text-[9px] rounded-lg font-bold bg-rose-950 text-rose-400 animate-pulse">
+            <span className="px-2 py-0.5 text-[9px] rounded-lg font-black bg-rose-950 text-rose-400 animate-pulse border border-rose-850/40">
               {borrowers.filter(b => b.statusTag === 'late').length}
             </span>
-          </button>
+          </motion.button>
 
-          <button
+          <motion.button
+            whileHover={{ scale: 1.01, x: 2 }}
+            whileTap={{ scale: 0.99 }}
             onClick={() => { setStandingFilter('dueSoon'); setActiveSection('ledger'); }}
-            className={`w-full flex items-center justify-between px-4 py-2.5 text-xs font-bold rounded-xl transition-all border duration-150 cursor-pointer ${activeSection === 'ledger' && standingFilter === 'dueSoon' ? 'bg-amber-600 text-white border-amber-500 shadow-md' : 'text-slate-400 hover:text-white hover:bg-slate-800/60 border-transparent'}`}
+            className={`w-full flex items-center justify-between px-3.5 py-2 text-xs font-bold rounded-xl transition-all border duration-200 cursor-pointer ${
+              activeSection === 'ledger' && standingFilter === 'dueSoon'
+                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white border-amber-400/30 shadow-md shadow-amber-500/10'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/50 border-transparent'
+            }`}
           >
             <span className="flex items-center gap-2.5">
-              <span>⏰</span>
+              <span className="text-sm">⏰</span>
               <span>{t('standingDueSoon')}</span>
             </span>
-            <span className="px-2 py-0.5 text-[9px] rounded-lg font-bold bg-amber-950/50 text-amber-300">
+            <span className={`px-2 py-0.5 text-[9px] rounded-lg font-black border transition-all ${
+              activeSection === 'ledger' && standingFilter === 'dueSoon'
+                ? 'bg-white/20 text-white border-amber-300/30'
+                : 'bg-amber-950/50 text-amber-300 border-amber-900/30'
+            }`}>
               {borrowers.filter(b => {
                 const dl = getDaysUntilNextPayment(b);
                 return dl !== null && dl <= 3;
               }).length}
             </span>
-          </button>
+          </motion.button>
         </div>
 
         {/* Sidebar System & Subscription Management Section */}
-        <div className="space-y-1.5 mt-5">
-          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider px-2 mb-3">
+        <div className="space-y-2 mt-5">
+          <p className="text-[10px] text-slate-500 font-extrabold uppercase tracking-wider px-2.5 mb-2">
             {currentUser === 'sounravin' ? 'គ្រប់គ្រងប្រព័ន្ធ' : 'គណនី & សមាជិកភាព'}
           </p>
 
           {currentUser === 'sounravin' && (
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => setActiveSection('admin_dashboard')}
-              className={`w-full flex items-center justify-between px-4 py-2.5 text-xs font-bold rounded-xl transition-all border duration-150 cursor-pointer ${activeSection === 'admin_dashboard' ? 'bg-indigo-600 text-white border-indigo-500 shadow-md shadow-indigo-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60 border-transparent'}`}
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 text-xs font-extrabold rounded-xl transition-all border duration-200 cursor-pointer ${
+                activeSection === 'admin_dashboard'
+                  ? 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white border-indigo-500 shadow-lg shadow-indigo-600/25'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/50 border-transparent'
+              }`}
             >
               <span className="flex items-center gap-2.5">
-                <Users className="w-4.5 h-4.5 text-indigo-400 shrink-0" />
+                <Users className="w-4 h-4 text-indigo-400 shrink-0" />
                 <span>គ្រប់គ្រងសមាជិក (Admin)</span>
               </span>
               {subRequests.filter(r => r.status === 'pending').length > 0 && (
@@ -2788,30 +2875,42 @@ export default function App() {
                   {subRequests.filter(r => r.status === 'pending').length}
                 </span>
               )}
-            </button>
+            </motion.button>
           )}
 
           {isMember && (
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => setActiveSection('pricing')}
-              className={`w-full flex items-center justify-between px-4 py-2.5 text-xs font-bold rounded-xl transition-all border duration-150 cursor-pointer ${activeSection === 'pricing' ? 'bg-amber-600 text-white border-amber-500 shadow-md shadow-amber-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60 border-transparent'}`}
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 text-xs font-extrabold rounded-xl transition-all border duration-200 cursor-pointer ${
+                activeSection === 'pricing'
+                  ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white border-amber-400/30 shadow-lg shadow-amber-500/25'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/50 border-transparent'
+              }`}
             >
               <span className="flex items-center gap-2.5">
-                <Award className="w-4.5 h-4.5 text-amber-400 shrink-0" />
+                <Award className="w-4 h-4 text-amber-400 shrink-0" />
                 <span>ទិញ/បន្តគម្រោងកម្មវិធី</span>
               </span>
-            </button>
+            </motion.button>
           )}
 
-          <button
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => setActiveSection('ledger')}
-            className={`w-full flex items-center justify-between px-4 py-2.5 text-xs font-bold rounded-xl transition-all border duration-150 cursor-pointer ${activeSection === 'ledger' ? 'bg-slate-800 text-white border-slate-700 shadow-md' : 'text-slate-400 hover:text-white hover:bg-slate-800/60 border-transparent'}`}
+            className={`w-full flex items-center justify-between px-3.5 py-2.5 text-xs font-extrabold rounded-xl transition-all border duration-200 cursor-pointer ${
+              activeSection === 'ledger'
+                ? 'bg-slate-800 text-white border-slate-700 shadow-md'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/50 border-transparent'
+            }`}
           >
             <span className="flex items-center gap-2.5">
-              <BookOpen className="w-4.5 h-4.5 text-slate-400 shrink-0" />
+              <BookOpen className="w-4 h-4 text-slate-400 shrink-0" />
               <span>បញ្ជីកម្ចីប្រាក់ (Ledger)</span>
             </span>
-          </button>
+          </motion.button>
         </div>
 
         {/* Sidebar Footer Info box - collected amounts */}

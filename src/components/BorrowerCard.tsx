@@ -4,6 +4,7 @@ import { formatMoney, formatKhmerDate } from '../utils';
 import { Calendar, Phone, CheckCircle, Clock, Check } from 'lucide-react';
 import { useLanguage } from '../i18n';
 import AvatarWithFrame from './AvatarWithFrame';
+import { motion } from 'motion/react';
 
 interface BorrowerCardProps {
   borrower: Borrower;
@@ -179,15 +180,17 @@ export default function BorrowerCard({ borrower, onSelect, onQuickPay, isSelecte
         
         {/* Quick payment check button */}
         {!isCompleted ? (
-          <button
+          <motion.button
             id={`quick-pay-btn-${borrower.id}`}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={handleQuickPayClick}
-            className="px-3 py-1.5 bg-slate-100 hover:bg-blue-600 hover:text-white active:bg-blue-700 text-slate-600 font-bold rounded-lg transition-all flex items-center gap-1 cursor-pointer"
+            className="px-3.5 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-lg transition-all shadow-sm shadow-blue-500/10 flex items-center gap-1 cursor-pointer"
             title={t('quickPay')}
           >
-            <Check className="w-3.5 h-3.5" />
+            <Check className="w-3.5 h-3.5 stroke-[3]" />
             <span>{t('quickPay')}</span>
-          </button>
+          </motion.button>
         ) : (
           <span className="text-slate-400 font-semibold flex items-center gap-1">
             {t('totalLabel')} {formatMoney(borrower.totalToPay, borrower.currency)}

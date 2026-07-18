@@ -3,6 +3,7 @@ import { LedgerStats, Borrower } from '../types';
 import { formatMoney } from '../utils';
 import { DollarSign, Percent, TrendingUp, Users, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '../i18n';
+import { motion } from 'motion/react';
 
 interface HeaderProps {
   stats: LedgerStats;
@@ -43,30 +44,34 @@ export default function Header({
         <div className="flex flex-wrap items-center gap-2.5">
           {/* Elegant Language switcher option */}
           <div id="language-switcher" className="flex bg-slate-200/80 border border-slate-300/30 p-1 rounded-xl items-center shadow-xs shrink-0 mr-1.5">
-            <button
+            <motion.button
               id="lang-kh"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => setLanguage('kh')}
-              className={`px-2.5 py-1.5 text-[10px] font-extrabold rounded-lg transition-all duration-150 cursor-pointer flex items-center gap-1 ${
+              className={`px-3 py-1.5 text-[10px] font-extrabold rounded-lg transition-all duration-150 cursor-pointer flex items-center gap-1 ${
                 language === 'kh'
-                  ? 'bg-white text-slate-900 shadow-sm'
+                  ? 'bg-white text-slate-900 shadow-sm border border-slate-200/50'
                   : 'text-slate-500 hover:text-slate-800'
               }`}
             >
               <span>🇰🇭</span>
               <span>{t('langKhmer')}</span>
-            </button>
-            <button
+            </motion.button>
+            <motion.button
               id="lang-en"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => setLanguage('en')}
-              className={`px-2.5 py-1.5 text-[10px] font-extrabold rounded-lg transition-all duration-150 cursor-pointer flex items-center gap-1 ${
+              className={`px-3 py-1.5 text-[10px] font-extrabold rounded-lg transition-all duration-150 cursor-pointer flex items-center gap-1 ${
                 language === 'en'
-                  ? 'bg-white text-slate-900 shadow-sm'
+                  ? 'bg-white text-slate-900 shadow-sm border border-slate-200/50'
                   : 'text-slate-500 hover:text-slate-800'
               }`}
             >
               <span>🇺🇸</span>
               <span>{t('langEnglish')}</span>
-            </button>
+            </motion.button>
           </div>
 
           <input
@@ -76,27 +81,33 @@ export default function Header({
             accept=".json"
             className="hidden"
           />
-          <button
+          <motion.button
             id="import-data-btn"
+            whileHover={{ scale: 1.02, y: -1 }}
+            whileTap={{ scale: 0.98 }}
             onClick={handleImportButtonClick}
-            className="px-4 py-2.5 text-xs bg-white hover:bg-slate-50 active:bg-slate-100 text-slate-700 font-bold rounded-xl border border-slate-200 shadow-sm transition duration-150 cursor-pointer flex items-center gap-1.5"
+            className="px-4 py-2.5 text-xs bg-white hover:bg-slate-50 active:bg-slate-100 text-slate-700 font-bold rounded-xl border border-slate-200 shadow-sm transition-all duration-150 cursor-pointer flex items-center gap-1.5"
           >
             {t('importBtn')}
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             id="export-data-btn"
+            whileHover={{ scale: 1.02, y: -1 }}
+            whileTap={{ scale: 0.98 }}
             onClick={onBackupClick}
-            className="px-4 py-2.5 text-xs bg-white hover:bg-slate-50 active:bg-slate-100 text-slate-700 font-bold rounded-xl border border-slate-200 shadow-sm transition duration-150 cursor-pointer flex items-center gap-1.5"
+            className="px-4 py-2.5 text-xs bg-white hover:bg-slate-50 active:bg-slate-100 text-slate-700 font-bold rounded-xl border border-slate-200 shadow-sm transition-all duration-150 cursor-pointer flex items-center gap-1.5"
           >
             {t('backupBtn')}
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             id="bulk-auto-check-btn"
+            whileHover={{ scale: 1.02, y: -1 }}
+            whileTap={{ scale: 0.98 }}
             onClick={onBulkAutoCheck}
-            className={`px-4 py-2.5 text-xs font-bold rounded-xl shadow-md transition duration-150 flex items-center gap-1.5 cursor-pointer ${
+            className={`px-4 py-2.5 text-xs font-bold rounded-xl shadow-md transition-all duration-150 flex items-center gap-1.5 cursor-pointer ${
               selectedCount > 0
-                ? 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white shadow-emerald-600/20'
-                : 'bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-500 border border-slate-200/60'
+                ? 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-emerald-500/20'
+                : 'bg-slate-100 hover:bg-slate-200 text-slate-500 border border-slate-200/60'
             }`}
           >
             <CheckCircle2 className="w-4 h-4" />
@@ -104,21 +115,26 @@ export default function Header({
               {language === 'kh' ? 'ទូទាត់ស្វ័យប្រវត្ត' : 'Auto Checking'}
               {selectedCount > 0 ? ` (${selectedCount})` : ''}
             </span>
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             id="add-borrower-btn"
+            whileHover={{ scale: 1.02, y: -1 }}
+            whileTap={{ scale: 0.98 }}
             onClick={onAddNewClick}
-            className="px-5 py-2.5 text-xs bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold rounded-xl shadow-lg shadow-blue-600/20 transition duration-150 flex items-center gap-1.5 cursor-pointer"
+            className="px-5 py-2.5 text-xs bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-blue-600/20 transition-all duration-150 flex items-center gap-1.5 cursor-pointer"
           >
             {t('addBtn')}
-          </button>
+          </motion.button>
         </div>
       </div>
 
       {/* Grid statistics cards matching Sleek Interface theme */}
       <div id="stats-grid" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {/* Card 1: Active Borrowers */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4 transition-all hover:shadow-md">
+        <motion.div 
+          whileHover={{ y: -4, scale: 1.01 }}
+          className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4 transition-all duration-200 hover:shadow-md"
+        >
           <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center shrink-0">
             <Users className="w-6 h-6" />
           </div>
@@ -131,10 +147,13 @@ export default function Header({
               {stats.totalCompletedLoansCount} {t('statsCompleted')}
             </p>
           </div>
-        </div>
+        </motion.div>
 
         {/* Card 2: Total Principal */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4 transition-all hover:shadow-md">
+        <motion.div 
+          whileHover={{ y: -4, scale: 1.01 }}
+          className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4 transition-all duration-200 hover:shadow-md"
+        >
           <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center shrink-0">
             <DollarSign className="w-6 h-6" />
           </div>
@@ -151,10 +170,13 @@ export default function Header({
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Card 3: Total Collected */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4 transition-all hover:shadow-md">
+        <motion.div 
+          whileHover={{ y: -4, scale: 1.01 }}
+          className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4 transition-all duration-200 hover:shadow-md"
+        >
           <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center shrink-0">
             <TrendingUp className="w-6 h-6" />
           </div>
@@ -171,10 +193,13 @@ export default function Header({
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Card 4: Total Remaining */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4 transition-all hover:shadow-md">
+        <motion.div 
+          whileHover={{ y: -4, scale: 1.01 }}
+          className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4 transition-all duration-200 hover:shadow-md"
+        >
           <div className="w-12 h-12 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center shrink-0">
             <Percent className="w-6 h-6" />
           </div>
@@ -191,7 +216,7 @@ export default function Header({
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
