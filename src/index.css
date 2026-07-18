@@ -1,0 +1,140 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Kantumruy+Pro:ital,wght@0,300..700;1,300..700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Kantumruy Pro", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+/* Custom styling to make inputs look polished on focusing */
+input:focus, select:focus, textarea:focus {
+  outline: none;
+}
+
+@keyframes marquee-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee-smooth {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: marquee-scroll 30s linear infinite;
+}
+
+.animate-marquee-smooth:hover {
+  animation-play-state: paused;
+}
+
+/* ==========================================
+   Dark Theme Overrides
+   ========================================== */
+.dark {
+  color-scheme: dark;
+}
+
+/* Root background styling */
+.dark .bg-slate-50, 
+.dark .min-h-screen.bg-slate-50 {
+  background-color: #0b111e !important; /* Deep space dark blue-gray */
+  color: #f1f5f9 !important;
+}
+
+/* Text overrides */
+.dark .text-slate-800,
+.dark .text-slate-900,
+.dark .text-slate-700 {
+  color: #f1f5f9 !important;
+}
+
+.dark .text-slate-500,
+.dark .text-slate-600 {
+  color: #94a3b8 !important;
+}
+
+.dark .text-slate-400 {
+  color: #64748b !important;
+}
+
+/* Cards & panels */
+.dark .bg-white {
+  background-color: #111827 !important; /* Slate 900 */
+  color: #f1f5f9 !important;
+}
+
+.dark .border-slate-200,
+.dark .border-slate-100,
+.dark .border-slate-200\/80 {
+  border-color: #1f2937 !important; /* Slate 800 */
+}
+
+/* Modals */
+.dark .bg-slate-900\/60 {
+  background-color: rgba(3, 7, 18, 0.8) !important;
+}
+
+/* Light gray elements inside cards */
+.dark .bg-slate-50,
+.dark .bg-slate-100,
+.dark .bg-slate-200\/80,
+.dark .bg-blue-50,
+.dark .bg-amber-50,
+.dark .bg-emerald-50,
+.dark .bg-rose-50 {
+  background-color: #1e293b !important; /* Slate 800/700 */
+}
+
+.dark .text-blue-600 {
+  color: #60a5fa !important;
+}
+.dark .text-amber-600 {
+  color: #fbbf24 !important;
+}
+.dark .text-emerald-600 {
+  color: #34d399 !important;
+}
+.dark .text-rose-600 {
+  color: #f87171 !important;
+}
+
+/* Input elements */
+.dark input, 
+.dark select, 
+.dark textarea {
+  background-color: #1e293b !important;
+  color: #f1f5f9 !important;
+  border-color: #334155 !important;
+}
+
+.dark input:focus, 
+.dark select:focus, 
+.dark textarea:focus {
+  border-color: #3b82f6 !important;
+}
+
+.dark input::placeholder {
+  color: #475569 !important;
+}
+
+/* Buttons */
+.dark .bg-white.hover\:bg-slate-50:hover,
+.dark .bg-white.hover\:bg-slate-100:hover {
+  background-color: #1e293b !important;
+}
+
+.dark .bg-white.text-slate-700 {
+  background-color: #1e293b !important;
+  color: #f1f5f9 !important;
+  border-color: #334155 !important;
+}
+
+.dark .bg-white.text-slate-700:hover {
+  background-color: #334155 !important;
+}
+
+/* Custom dropdown option styling */
+.dark option {
+  background-color: #111827 !important;
+  color: #f1f5f9 !important;
+}
+

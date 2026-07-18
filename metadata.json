@@ -1,0 +1,6 @@
+{
+  "name": "សៀវភៅកត់ត្រាលុយឆក (Installment Loan Ledger)",
+  "description": "កម្មវិធីកត់ត្រាលុយឆក និងគណនាការបង់ប្រាក់សងស្វ័យប្រវត្តិ ងាយស្រួល ឆាប់រហ័ស និងមានសុវត្ថិភាពខ្ពស់។",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
