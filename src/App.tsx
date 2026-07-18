@@ -205,6 +205,95 @@ export default function App() {
     );
   };
 
+  // Real-time dynamic favicon generator based on logoConfig
+  useEffect(() => {
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = 128;
+      canvas.height = 128;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const bgColor = logoConfig.logoBgColor || '#2563EB';
+      const textColor = logoConfig.logoTextColor || '#FFFFFF';
+      const logoText = logoConfig.logoText || '៚';
+
+      const updateFavicon = (url: string) => {
+        let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+        if (!link) {
+          link = document.createElement('link');
+          link.rel = 'icon';
+          document.head.appendChild(link);
+        }
+        link.href = url;
+      };
+
+      const drawTextFavicon = () => {
+        ctx.clearRect(0, 0, 128, 128);
+        
+        // Draw beautiful rounded square background
+        ctx.fillStyle = bgColor;
+        if (typeof ctx.roundRect === 'function') {
+          ctx.beginPath();
+          ctx.roundRect(0, 0, 128, 128, 32);
+          ctx.fill();
+        } else {
+          ctx.fillRect(0, 0, 128, 128);
+        }
+
+        // Draw text
+        ctx.fillStyle = textColor;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        // Adjust font size based on text length to avoid overflow
+        const textLen = logoText.length;
+        let fontSize = 76;
+        if (textLen > 2) fontSize = 48;
+        if (textLen > 4) fontSize = 32;
+
+        ctx.font = `bold ${fontSize}px "Inter", "Hanuman", "Khmer OS Battambang", sans-serif`;
+        ctx.fillText(logoText, 64, 64);
+
+        updateFavicon(canvas.toDataURL('image/png'));
+      };
+
+      if (logoConfig.logoType === 'image' && logoConfig.logoImageUrl) {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.src = logoConfig.logoImageUrl;
+        img.onload = () => {
+          try {
+            ctx.clearRect(0, 0, 128, 128);
+            
+            // Draw a rounded rectangle clipping path for image
+            ctx.beginPath();
+            if (typeof ctx.roundRect === 'function') {
+              ctx.roundRect(0, 0, 128, 128, 32);
+            } else {
+              ctx.rect(0, 0, 128, 128);
+            }
+            ctx.clip();
+            
+            ctx.drawImage(img, 0, 0, 128, 128);
+            updateFavicon(canvas.toDataURL('image/png'));
+          } catch (e) {
+            // Fallback if drawing/clipping fails
+            drawTextFavicon();
+          }
+        };
+        img.onerror = () => {
+          // CORS fallback
+          drawTextFavicon();
+        };
+      } else {
+        drawTextFavicon();
+      }
+    } catch (err) {
+      console.warn('Failed to generate dynamic favicon:', err);
+    }
+  }, [logoConfig]);
+
   useEffect(() => {
     if (blockScreenPaymentStep === 'scan') {
       setBlockScreenQrScanDetected(false);
