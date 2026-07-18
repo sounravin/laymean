@@ -61,6 +61,7 @@ interface AvatarWithFrameProps {
   className?: string;
   onClick?: () => void;
   editable?: boolean;
+  hasWarning?: boolean;
 }
 
 export default function AvatarWithFrame({
@@ -71,6 +72,7 @@ export default function AvatarWithFrame({
   className = '',
   onClick,
   editable = false,
+  hasWarning = false,
 }: AvatarWithFrameProps) {
   // Sizing definitions for the inner avatar circle
   const sizeClasses = {
@@ -86,6 +88,13 @@ export default function AvatarWithFrame({
     md: 'scale-[1.38]',
     lg: 'scale-[1.40]',
     xl: 'scale-[1.42]',
+  };
+
+  const warningBadgeSize = {
+    sm: 'w-4.5 h-4.5 text-[9px]',
+    md: 'w-5.5 h-5.5 text-[11px]',
+    lg: 'w-7 h-7 text-[13px]',
+    xl: 'w-8.5 h-8.5 text-[15px]',
   };
 
   const initial = name ? name.charAt(0).toUpperCase() : '?';
@@ -511,6 +520,19 @@ export default function AvatarWithFrame({
             </div>
           )}
 
+        </div>
+      )}
+
+      {/* 4. Pulsing Warning Ring and Badge Overlay */}
+      {hasWarning && (
+        <div className="absolute inset-0 z-30 pointer-events-none flex items-center justify-center">
+          {/* Double pulsing rings */}
+          <div className="absolute inset-[-6px] rounded-full border-2 border-rose-500 animate-ping opacity-60" />
+          <div className="absolute inset-[-3px] rounded-full border-2 border-rose-400/80 animate-pulse" style={{ boxShadow: '0 0 14px rgba(244, 63, 94, 0.7)' }} />
+          {/* Warning badge */}
+          <div className={`absolute bottom-[-1px] right-[-1px] z-40 bg-rose-500 text-white rounded-full border border-white flex items-center justify-center shadow-lg shadow-rose-500/30 animate-bounce font-black ${warningBadgeSize[size]}`}>
+            ⚠️
+          </div>
         </div>
       )}
     </div>

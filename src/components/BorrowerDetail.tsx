@@ -458,6 +458,7 @@ export default function BorrowerDetail({
               frameId={borrower.avatarFrame}
               size="sm"
               className="shrink-0"
+              hasWarning={!!borrower.interestOnlyExtension}
             />
             <div>
               <h2 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
@@ -975,6 +976,7 @@ export default function BorrowerDetail({
                     size="lg"
                     editable={true}
                     onClick={() => setIsFrameModalOpen(true)}
+                    hasWarning={!!borrower.interestOnlyExtension}
                   />
                 </div>
 

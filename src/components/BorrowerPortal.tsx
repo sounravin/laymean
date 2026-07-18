@@ -206,6 +206,7 @@ export default function BorrowerPortal({ borrower, onBackToLender, isLenderLogge
                 size="md"
                 editable={true}
                 onClick={() => setIsFrameModalOpen(true)}
+                hasWarning={!!borrower.interestOnlyExtension}
               />
             </div>
             
@@ -297,6 +298,25 @@ export default function BorrowerPortal({ borrower, onBackToLender, isLenderLogge
             </span>
           </div>
         </div>
+
+        {borrower.interestOnlyExtension && (
+          <div className="p-5 bg-rose-50 border-2 border-rose-500/30 rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm animate-in fade-in slide-in-from-top-2 duration-300">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl shrink-0">⚠️</span>
+              <div className="space-y-1">
+                <h4 className="text-sm font-black text-rose-800 flex items-center gap-1.5">
+                  <span>{language === 'kh' ? 'កូនបំណុលសងការបន្តរ' : 'Borrower Pays Interest Continuously'}</span>
+                  <span className="inline-flex h-2 w-2 rounded-full bg-rose-500 animate-ping" />
+                </h4>
+                {borrower.interestOnlyExtensionNote && (
+                  <p className="text-xs font-bold text-slate-600 bg-white p-3 border border-slate-100 rounded-2xl whitespace-pre-line leading-relaxed mt-2">
+                    {language === 'kh' ? 'កំណត់ចំណាំការសងការបន្តរ៖ ' : 'Extension Note: '}{borrower.interestOnlyExtensionNote}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Financial Overview Grid & Repayment Checklist */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
