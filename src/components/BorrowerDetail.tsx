@@ -61,6 +61,11 @@ export default function BorrowerDetail({
   const [editCoverPhoto, setEditCoverPhoto] = useState(borrower.coverPhoto || '');
   const [editPaymentQr, setEditPaymentQr] = useState(borrower.paymentQr || '');
 
+  const [editInterestOnlyExtension, setEditInterestOnlyExtension] = useState<boolean>(!!borrower.interestOnlyExtension);
+  const [editInterestOnlyExtensionNote, setEditInterestOnlyExtensionNote] = useState<string>(borrower.interestOnlyExtensionNote || '');
+  const [extensionActive, setExtensionActive] = useState<boolean>(!!borrower.interestOnlyExtension);
+  const [extensionNote, setExtensionNote] = useState<string>(borrower.interestOnlyExtensionNote || '');
+
   // Reset editing states when borrower or editing mode changes
   useEffect(() => {
     setEditName(borrower.name);
@@ -78,6 +83,10 @@ export default function BorrowerDetail({
     setEditProfilePhoto(borrower.profilePhoto || '');
     setEditCoverPhoto(borrower.coverPhoto || '');
     setEditPaymentQr(borrower.paymentQr || '');
+    setEditInterestOnlyExtension(!!borrower.interestOnlyExtension);
+    setEditInterestOnlyExtensionNote(borrower.interestOnlyExtensionNote || '');
+    setExtensionActive(!!borrower.interestOnlyExtension);
+    setExtensionNote(borrower.interestOnlyExtensionNote || '');
   }, [borrower, isEditing]);
 
   const handleEditPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -224,6 +233,8 @@ export default function BorrowerDetail({
         profilePhoto: editProfilePhoto,
         coverPhoto: editCoverPhoto,
         paymentQr: editPaymentQr,
+        interestOnlyExtension: editInterestOnlyExtension,
+        interestOnlyExtensionNote: editInterestOnlyExtensionNote.trim(),
       });
     }
     setIsEditing(false);
@@ -871,6 +882,48 @@ export default function BorrowerDetail({
                     className="w-full px-3.5 py-2.5 text-sm bg-amber-50/50 border border-amber-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 font-medium placeholder-slate-400"
                   />
                 </div>
+
+                {/* Edit Interest-Only Extension Option */}
+                <div className="p-4 bg-amber-50/50 border border-amber-200 rounded-2xl space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="block text-xs font-bold text-amber-800 uppercase tracking-wider">
+                        {language === 'kh' ? 'ពន្យារពេលសងដើម (សងការបន្តរ)' : 'Defer Principal (Interest Only)'}
+                      </span>
+                      <p className="text-[10px] text-amber-700/85 font-semibold mt-0.5">
+                        {language === 'kh' ? 'សម្គាល់កូនបំណុលដែលសុំបង់តែការប្រាក់បន្តសិន' : 'Mark borrower paying interest only continuously'}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setEditInterestOnlyExtension(!editInterestOnlyExtension)}
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                        editInterestOnlyExtension ? 'bg-amber-500' : 'bg-slate-200'
+                      }`}
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                          editInterestOnlyExtension ? 'translate-x-5' : 'translate-x-0'
+                        }`}
+                      />
+                    </button>
+                  </div>
+                  
+                  {editInterestOnlyExtension && (
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
+                        {language === 'kh' ? 'កំណត់ចំណាំការសងការបន្តរ' : 'Extension Notes'}
+                      </label>
+                      <textarea
+                        value={editInterestOnlyExtensionNote}
+                        onChange={(e) => setEditInterestOnlyExtensionNote(e.target.value)}
+                        rows={2}
+                        placeholder={language === 'kh' ? 'បញ្ចូលព័ត៌មានលម្អិត...' : 'Enter details...'}
+                        className="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 font-medium"
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="mt-6 flex justify-end gap-3">
@@ -964,6 +1017,25 @@ export default function BorrowerDetail({
                 </div>
               </div>
             </div>
+
+            {borrower.interestOnlyExtension && (
+              <div className="mx-6 mt-4 p-4.5 bg-rose-50 border-2 border-rose-500/30 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+                <div className="flex items-start gap-3">
+                  <span className="text-xl shrink-0">⚠️</span>
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-black text-rose-800 flex items-center gap-1.5">
+                      <span>{language === 'kh' ? 'កូនបំណុលសងការបន្តរ' : 'Borrower Pays Interest Continuously'}</span>
+                      <span className="inline-flex h-2 w-2 rounded-full bg-rose-500 animate-ping" />
+                    </h4>
+                    {borrower.interestOnlyExtensionNote && (
+                      <p className="text-xs font-bold text-slate-600 bg-white p-2.5 border border-slate-100 rounded-xl whitespace-pre-line leading-relaxed">
+                        {language === 'kh' ? 'កំណត់ចំណាំការសងការបន្តរ៖ ' : 'Extension Note: '}{borrower.interestOnlyExtensionNote}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Elegant Tabs switcher */}
             <div className="px-6 border-b border-slate-100 bg-white flex gap-6 shrink-0">
@@ -1421,6 +1493,79 @@ export default function BorrowerDetail({
                             }`}
                           />
                         </button>
+                      </div>
+
+                      {/* Interest-Only Extension Option Card */}
+                      <div className="bg-amber-50/50 border border-amber-200 rounded-2xl p-5 space-y-4 shadow-sm">
+                        <div className="space-y-1">
+                          <h4 className="text-xs font-bold text-amber-800 uppercase tracking-wider flex items-center gap-1.5">
+                            <span>⚠️</span> {language === 'kh' ? 'មុខងារពន្យាពេលសងដើម (សងការបន្តរ)' : 'Defer Principal (Interest Only)'}
+                          </h4>
+                          <p className="text-[10px] text-amber-700 font-semibold leading-relaxed">
+                            {language === 'kh' 
+                              ? 'ប្រើប្រាស់មុខងារនេះ នៅពេលកូនបំណុលសុំពន្យារពេលសងប្រាក់ដើម ដោយយល់ព្រមបង់តែការប្រាក់បន្តសិន។'
+                              : 'Use this option when the borrower requests to delay principal payment and only pay interest continuously.'}
+                          </p>
+                        </div>
+
+                        {/* Note Input */}
+                        <div className="space-y-1.5">
+                          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                            {language === 'kh' ? 'កំណត់ចំណាំការសងការបន្តរ' : 'Extension Notes'}
+                          </label>
+                          <textarea
+                            value={extensionNote}
+                            onChange={(e) => setExtensionNote(e.target.value)}
+                            rows={2}
+                            placeholder={language === 'kh' ? 'បញ្ចូលមូលហេតុ ឬលក្ខខណ្ឌនៃការសងការបន្តរ...' : 'Enter reasons or conditions...'}
+                            className="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 font-bold text-slate-700"
+                          />
+                        </div>
+
+                        {/* Process Buttons */}
+                        <div className="flex items-center gap-2 pt-1">
+                          {/* Toggle Active state */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const nextActive = !extensionActive;
+                              setExtensionActive(nextActive);
+                            }}
+                            className={`flex-1 py-2 px-2 text-xs font-bold rounded-xl border text-center transition cursor-pointer flex items-center justify-center gap-1.5 ${
+                              extensionActive
+                                ? 'bg-amber-500 text-white border-amber-600 shadow-sm shadow-amber-500/25'
+                                : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                            }`}
+                          >
+                            <span>🔔</span>
+                            <span>
+                              {extensionActive 
+                                ? (language === 'kh' ? 'បានបើកសងការបន្តរ' : 'Extension Enabled') 
+                                : (language === 'kh' ? 'បើកសងការបន្តរ' : 'Enable Extension')}
+                            </span>
+                          </button>
+
+                          {/* Proceed/Save Button */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (onEditBorrower) {
+                                onEditBorrower(borrower.id, {
+                                  interestOnlyExtension: extensionActive,
+                                  interestOnlyExtensionNote: extensionNote.trim(),
+                                });
+                                alert(language === 'kh' 
+                                  ? 'បានដំណើរការកំណត់ការសងការបន្តររបស់កូនបំណុលរួចរាល់!' 
+                                  : 'Successfully processed borrower interest-only payment extension!'
+                                );
+                              }
+                            }}
+                            className="px-4 py-2 text-xs font-extrabold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-xl transition cursor-pointer shadow-md shadow-blue-600/10 flex items-center justify-center gap-1 shrink-0"
+                          >
+                            <span>🚀</span>
+                            <span>{language === 'kh' ? 'ដំណើរការ' : 'Process'}</span>
+                          </button>
+                        </div>
                       </div>
 
                       {/* Custom Payment Form */}

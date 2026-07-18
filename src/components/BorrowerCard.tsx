@@ -104,6 +104,11 @@ export default function BorrowerCard({ borrower, onSelect, onQuickPay, isSelecte
                       : t('regularLabel')}
                 </span>
               )}
+              {borrower.interestOnlyExtension && (
+                <span className="inline-flex items-center text-[10px] font-black px-1.5 py-0.5 rounded bg-rose-500 text-white border border-rose-600 animate-pulse" title="កូនបំណុលសងការបន្តរ">
+                  ⚠️ {useLanguage().language === 'kh' ? 'កូនបំណុលសងការបន្តរ' : 'Paying Interest Only'}
+                </span>
+              )}
             </div>
             {borrower.phone ? (
               <div className="flex items-center gap-1 text-xs text-slate-400">

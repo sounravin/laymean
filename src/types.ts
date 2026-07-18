@@ -37,6 +37,8 @@ export interface Borrower {
   coverPhoto?: string; // base64 encoded cover photo string
   paymentQr?: string; // base64 encoded payment QR code image URL
   userId?: string; // The username of the member who owns this borrower
+  interestOnlyExtension?: boolean; // Whether the borrower requested interest-only principal deferral
+  interestOnlyExtensionNote?: string; // Note/reason for interest-only principal deferral
 }
 
 export interface ChatMessage {
