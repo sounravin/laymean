@@ -57,7 +57,7 @@ export default function NotificationBell({ borrowers, onSelectBorrower, isMobile
   }, []);
 
   return (
-    <div ref={containerRef} className="relative z-50">
+    <div ref={containerRef} className={`z-50 ${sidebarMode ? 'relative' : 'md:relative'}`}>
       {/* SVG definitions for beautiful golden gradients */}
       <svg className="absolute w-0 h-0 pointer-events-none" xmlns="http://www.w3.org/2000/svg">
         <defs>
@@ -117,10 +117,10 @@ export default function NotificationBell({ borrowers, onSelectBorrower, isMobile
                   : { opacity: 0, y: 8, scale: 0.95 }
               }
               transition={{ duration: 0.2, ease: 'easeOut' }}
-              className={`border-2 rounded-2xl shadow-2xl overflow-hidden z-50 ${
+              className={`border-2 rounded-2xl shadow-2xl overflow-hidden z-[100] ${
                 sidebarMode
                   ? 'absolute left-full top-0 ml-4 w-88 md:w-96 origin-left'
-                  : 'absolute mt-2.5 right-0 w-[calc(100vw-32px)] sm:w-96 max-w-[calc(100vw-32px)] sm:max-w-md origin-top-right'
+                  : 'fixed md:absolute top-24 md:top-auto md:mt-2.5 left-4 right-4 md:left-auto md:right-0 w-auto md:w-96 max-w-sm md:max-w-md mx-auto md:mx-0 origin-top md:origin-top-right'
               } bg-[#070c19] border-[#b37e1b]/70 text-slate-100 dark-glow-amber`}
             >
               {/* Decorative Double Border Outline */}

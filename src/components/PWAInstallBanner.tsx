@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Download, X, Smartphone, Sparkles } from 'lucide-react';
+import { Download, X, Smartphone, Sparkles, Share, PlusSquare } from 'lucide-react';
 import { useLanguage } from '../i18n';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -23,12 +23,30 @@ export default function PWAInstallBanner() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
+  const [showIOSInstructions, setShowIOSInstructions] = useState(false);
 
   useEffect(() => {
     // Check if app is already running in standalone mode (already installed & opened as PWA)
-    if (window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone) {
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone;
+    if (isStandalone) {
       setIsInstalled(true);
       return;
+    }
+
+    // Detect if user is on iPhone / iPad / iOS
+    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+    setIsIOS(isIOSDevice);
+
+    // If iOS and not standalone, show prompt after 3 seconds
+    if (isIOSDevice && !isStandalone) {
+      const isDismissed = sessionStorage.getItem('pwa-prompt-dismissed');
+      if (!isDismissed) {
+        const timer = setTimeout(() => {
+          setIsVisible(true);
+        }, 3000);
+        return () => clearTimeout(timer);
+      }
     }
 
     const handleBeforeInstallPrompt = (e: Event) => {
@@ -65,6 +83,12 @@ export default function PWAInstallBanner() {
   }, []);
 
   const handleInstallClick = async () => {
+    if (isIOS) {
+      // For iOS, toggle instruction panel
+      setShowIOSInstructions(true);
+      return;
+    }
+
     if (!deferredPrompt) return;
 
     // Show the install prompt
@@ -81,11 +105,12 @@ export default function PWAInstallBanner() {
 
   const handleDismiss = () => {
     setIsVisible(false);
+    setShowIOSInstructions(false);
     sessionStorage.setItem('pwa-prompt-dismissed', 'true');
   };
 
-  // If already installed or prompt is not available, don't show the banner
-  if (isInstalled || !isVisible || !deferredPrompt) {
+  // If already installed or prompt is not available (and not iOS), don't show the banner
+  if (isInstalled || !isVisible || (!deferredPrompt && !isIOS)) {
     return null;
   }
 
@@ -129,51 +154,115 @@ export default function PWAInstallBanner() {
             }}
           />
 
-          {/* Main Layout Grid */}
-          <div className="relative z-20 flex items-start gap-4 pr-4 pl-2">
-            {/* Round Golden App Icon Representation */}
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-[#dfb035] to-[#fff2a3] flex items-center justify-center shadow-[0_0_12px_rgba(223,176,53,0.4)] shrink-0 border border-white/20">
-              <Smartphone className="w-6 h-6 text-[#050a16]" />
-            </div>
+          {!showIOSInstructions ? (
+            <>
+              {/* Main Layout Grid */}
+              <div className="relative z-20 flex items-start gap-4 pr-4 pl-2">
+                {/* Round Golden App Icon Representation */}
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-[#dfb035] to-[#fff2a3] flex items-center justify-center shadow-[0_0_12px_rgba(223,176,53,0.4)] shrink-0 border border-white/20">
+                  <Smartphone className="w-6 h-6 text-[#050a16]" />
+                </div>
 
-            {/* Title & Copy */}
-            <div className="space-y-1 flex-1 min-w-0">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-[10px] font-black tracking-widest text-[#dfb035] uppercase bg-[#dfb035]/10 px-2 py-0.5 rounded-md border border-[#dfb035]/20 flex items-center gap-1">
-                  <Sparkles className="w-2.5 h-2.5" />
-                  PWA APP
-                </span>
-                <span className="text-[9px] text-[#FFE082]/80 font-bold">
-                  {language === 'kh' ? 'ដំឡើងទូរស័ព្ទ' : 'Install on Mobile'}
-                </span>
+                {/* Title & Copy */}
+                <div className="space-y-1 flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[10px] font-black tracking-widest text-[#dfb035] uppercase bg-[#dfb035]/10 px-2 py-0.5 rounded-md border border-[#dfb035]/20 flex items-center gap-1">
+                      <Sparkles className="w-2.5 h-2.5" />
+                      PWA APP
+                    </span>
+                    <span className="text-[9px] text-[#FFE082]/80 font-bold">
+                      {language === 'kh' ? (isIOS ? 'តម្លើងលើ iOS / iPhone' : 'ដំឡើងទូរស័ព្ទ') : (isIOS ? 'Install on iOS / iPhone' : 'Install on Mobile')}
+                    </span>
+                  </div>
+                  <h4 className="font-extrabold text-sm text-white tracking-wide">
+                    {language === 'kh' ? 'ដំឡើងកម្មវិធី Luypay' : 'Install Luypay Web App'}
+                  </h4>
+                  <p className="text-[11px] text-slate-300 font-medium leading-relaxed">
+                    {language === 'kh' 
+                      ? 'ដំឡើងកម្មវិធីនេះទៅលើអេក្រង់ទូរស័ព្ទ ឬកុំព្យូទ័ររបស់អ្នក ដើម្បីងាយស្រួលបើកប្រើប្រាស់ និងរហ័សទាន់ចិត្ត!'
+                      : 'Add Luypay directly to your home screen for quick offline access and premium app experience.'}
+                  </p>
+                </div>
               </div>
-              <h4 className="font-extrabold text-sm text-white tracking-wide">
-                {language === 'kh' ? 'ដំឡើងកម្មវិធី Luypay' : 'Install Luypay Web App'}
-              </h4>
-              <p className="text-[11px] text-slate-300 font-medium leading-relaxed">
-                {language === 'kh' 
-                  ? 'ដំឡើងកម្មវិធីនេះទៅលើអេក្រង់ទូរស័ព្ទ ឬកុំព្យូទ័ររបស់អ្នក ដើម្បីងាយស្រួលបើកប្រើប្រាស់ និងរហ័សទាន់ចិត្ត!'
-                  : 'Add Luypay directly to your home screen for quick offline access and premium app experience.'}
-              </p>
-            </div>
-          </div>
 
-          {/* Buttons Controls */}
-          <div className="relative z-20 flex items-center gap-2.5 mt-4.5 justify-end pl-2">
-            <button
-              onClick={handleDismiss}
-              className="px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 transition-colors cursor-pointer border border-transparent hover:bg-slate-800/40"
-            >
-              {language === 'kh' ? 'ទុកពេលក្រោយ' : 'Maybe Later'}
-            </button>
-            <button
-              onClick={handleInstallClick}
-              className="bg-gradient-to-r from-[#dfb035] to-[#b37e1b] text-[#050a16] text-xs font-black px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-md border border-[#fff2a3]/30 hover:shadow-[0_0_15px_rgba(223,176,53,0.5)] transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer"
-            >
-              <Download className="w-3.5 h-3.5" />
-              <span>{language === 'kh' ? 'ដំឡើងកម្មវិធីឥឡូវនេះ' : 'Install Now'}</span>
-            </button>
-          </div>
+              {/* Buttons Controls */}
+              <div className="relative z-20 flex items-center gap-2.5 mt-4.5 justify-end pl-2">
+                <button
+                  onClick={handleDismiss}
+                  className="px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 transition-colors cursor-pointer border border-transparent hover:bg-slate-800/40"
+                >
+                  {language === 'kh' ? 'ទុកពេលក្រោយ' : 'Maybe Later'}
+                </button>
+                <button
+                  onClick={handleInstallClick}
+                  className="bg-gradient-to-r from-[#dfb035] to-[#b37e1b] text-[#050a16] text-xs font-black px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-md border border-[#fff2a3]/30 hover:shadow-[0_0_15px_rgba(223,176,53,0.5)] transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>{language === 'kh' ? 'ដំឡើងកម្មវិធីឥឡូវនេះ' : 'Install Now'}</span>
+                </button>
+              </div>
+            </>
+          ) : (
+            /* Special Instruction Panel for iOS / Safari / iPhone users */
+            <div className="relative z-20 space-y-4 px-2">
+              <div className="flex items-center gap-2 border-b border-[#dfb035]/20 pb-2.5">
+                <Smartphone className="w-5 h-5 text-amber-400 animate-pulse" />
+                <h4 className="font-extrabold text-xs tracking-wider uppercase text-[#FFE082]">
+                  {language === 'kh' ? 'របៀបដំឡើងនៅលើ iPhone (Safari)' : 'How to install on iPhone (Safari)'}
+                </h4>
+              </div>
+
+              <div className="space-y-3.5 text-xs text-slate-200">
+                <div className="flex items-start gap-3">
+                  <span className="w-5 h-5 rounded-full bg-amber-500/10 border border-[#dfb035]/40 text-[#FFE082] font-black flex items-center justify-center shrink-0">1</span>
+                  <p className="leading-relaxed">
+                    {language === 'kh' ? (
+                      <>ចុចលើប៊ូតុង <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded text-amber-400 font-bold"><Share className="w-3 h-3" /> Share (ចែករំលែក)</span> នៅផ្នែកខាងក្រោមនៃកម្មវិធីរុករក Safari។</>
+                    ) : (
+                      <>Tap the <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded text-amber-400 font-bold"><Share className="w-3 h-3" /> Share Button</span> at the bottom of Safari.</>
+                    )}
+                  </p>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <span className="w-5 h-5 rounded-full bg-amber-500/10 border border-[#dfb035]/40 text-[#FFE082] font-black flex items-center justify-center shrink-0">2</span>
+                  <p className="leading-relaxed">
+                    {language === 'kh' ? (
+                      <>អូសចុះក្រោម រួចជ្រើសរើសយកពាក្យ <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded text-amber-400 font-bold"><PlusSquare className="w-3 h-3" /> Add to Home Screen</span> (បន្ថែមទៅអេក្រង់ដើម)។</>
+                    ) : (
+                      <>Scroll down and choose <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded text-amber-400 font-bold"><PlusSquare className="w-3 h-3" /> Add to Home Screen</span>.</>
+                    )}
+                  </p>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <span className="w-5 h-5 rounded-full bg-amber-500/10 border border-[#dfb035]/40 text-[#FFE082] font-black flex items-center justify-center shrink-0">3</span>
+                  <p className="leading-relaxed">
+                    {language === 'kh' ? (
+                      <>ចុចពាក្យ <span className="text-amber-300 font-black">Add (បន្ថែម)</span> នៅជ្រុងខាងលើខាងស្តាំ ដើម្បីបញ្ចប់ការដំឡើង! 🎉</>
+                    ) : (
+                      <>Tap <span className="text-amber-300 font-black">Add</span> in the top right corner to complete! 🎉</>
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-1">
+                <button
+                  onClick={() => setShowIOSInstructions(false)}
+                  className="px-3 py-1 bg-slate-800 border border-slate-700 rounded-lg text-[11px] font-bold text-[#FFE082] hover:bg-slate-700/80 transition-all cursor-pointer"
+                >
+                  {language === 'kh' ? 'ត្រឡប់ក្រោយ' : 'Go Back'}
+                </button>
+                <button
+                  onClick={handleDismiss}
+                  className="px-3.5 py-1 bg-amber-500 text-slate-950 rounded-lg text-[11px] font-black hover:bg-amber-400 transition-all cursor-pointer"
+                >
+                  {language === 'kh' ? 'យល់ព្រម' : 'Got It'}
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Dismiss Icon */}
           <button
