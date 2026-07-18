@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Beautiful Golden Khmer Gradient -->
+    <linearGradient id="khmer-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF2A3" />
+      <stop offset="30%" stop-color="#DFB035" />
+      <stop offset="70%" stop-color="#B37E1B" />
+      <stop offset="100%" stop-color="#DFB035" />
+    </linearGradient>
+    <linearGradient id="bg-dark" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0c1836" />
+      <stop offset="100%" stop-color="#050a16" />
+    </linearGradient>
+    <!-- Glow Filter -->
+    <filter id="gold-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Dark Cosmic Blue Background -->
+  <rect width="512" height="512" rx="112" fill="url(#bg-dark)" />
+  
+  <!-- Outer Gold Border -->
+  <rect x="16" y="16" width="480" height="480" rx="96" fill="none" stroke="url(#khmer-gold)" stroke-width="6" opacity="0.85" />
+  <rect x="26" y="26" width="460" height="460" rx="86" fill="none" stroke="url(#khmer-gold)" stroke-width="2" opacity="0.3" />
+
+  <!-- Traditional Khmer Corner Accents (Kbach) -->
+  <g transform="translate(40, 40)" stroke="url(#khmer-gold)" stroke-width="3" fill="none">
+    <path d="M 0 30 C 10 15, 15 10, 30 0 C 20 5, 15 15, 0 30" />
+    <path d="M 0 15 C 5 5, 5 5, 15 0" />
+  </g>
+  <g transform="translate(472, 40) scale(-1, 1)" stroke="url(#khmer-gold)" stroke-width="3" fill="none">
+    <path d="M 0 30 C 10 15, 15 10, 30 0 C 20 5, 15 15, 0 30" />
+    <path d="M 0 15 C 5 5, 5 5, 15 0" />
+  </g>
+  <g transform="translate(40, 472) scale(1, -1)" stroke="url(#khmer-gold)" stroke-width="3" fill="none">
+    <path d="M 0 30 C 10 15, 15 10, 30 0 C 20 5, 15 15, 0 30" />
+    <path d="M 0 15 C 5 5, 5 5, 15 0" />
+  </g>
+  <g transform="translate(472, 472) scale(-1, -1)" stroke="url(#khmer-gold)" stroke-width="3" fill="none">
+    <path d="M 0 30 C 10 15, 15 10, 30 0 C 20 5, 15 15, 0 30" />
+    <path d="M 0 15 C 5 5, 5 5, 15 0" />
+  </g>
+
+  <!-- Center Graphic: Golden Shield/Coin with a Khmer Ornament + Bell Symbol -->
+  <g transform="translate(256, 256)" filter="url(#gold-glow)">
+    <!-- Central Shield -->
+    <circle r="120" fill="url(#bg-dark)" stroke="url(#khmer-gold)" stroke-width="10" />
+    <circle r="100" fill="none" stroke="url(#khmer-gold)" stroke-width="2" stroke-dasharray="8,6" opacity="0.6" />
+
+    <!-- Khmer Kbach Motif / Golden Bell -->
+    <path d="M 0 -70 
+             C 15 -70, 35 -50, 35 -30 
+             C 35 -20, 45 -10, 50 10 
+             C 55 30, 45 40, 0 45 
+             C -45 40, -55 30, -50 10 
+             C -45 -10, -35 -20, -35 -30 
+             C -35 -50, -15 -70, 0 -70 Z" 
+          fill="url(#khmer-gold)" />
+          
+    <!-- Small Bell Clapper -->
+    <circle cx="0" cy="55" r="14" fill="url(#khmer-gold)" />
+    
+    <!-- Khmer Decorative Ribbon/Wing around Shield -->
+    <path d="M -120 0 C -150 -40, -180 -20, -210 -30 C -180 10, -140 0, -120 0 Z" fill="url(#khmer-gold)" opacity="0.8" />
+    <path d="M 120 0 C 150 -40, 180 -20, 210 -30 C 180 10, 140 0, 120 0 Z" fill="url(#khmer-gold)" opacity="0.8" />
+  </g>
+
+  <!-- Elegant Brand Text: "LUYPAY" at the bottom -->
+  <text x="256" y="430" 
+        font-family="'Inter', system-ui, sans-serif" 
+        font-size="32" 
+        font-weight="900" 
+        letter-spacing="8" 
+        fill="url(#khmer-gold)" 
+        text-anchor="middle" 
+        filter="url(#gold-glow)">LUYPAY</text>
+</svg>

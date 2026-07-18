@@ -15,6 +15,7 @@ import { db } from './lib/firebase';
 import { useLanguage } from './i18n';
 import { motion, AnimatePresence } from 'motion/react';
 import { SignInForm, RegisterForm, ForgotPasswordForm } from './components/AuthForms';
+import PWAInstallBanner from './components/PWAInstallBanner';
 
 const LOCAL_STORAGE_KEY = 'luypay_ledger_borrowers';
 
@@ -2556,6 +2557,64 @@ export default function App() {
 
   return (
     <div className={`min-h-screen bg-slate-50 text-slate-800 antialiased font-sans flex flex-col ${theme === 'dark' ? 'dark' : ''}`}>
+      {/* PWA Add to Home Screen Banner */}
+      <PWAInstallBanner />
+
+      {/* Decorative Traditional Khmer Night Lights and Lanterns (glowing effects) */}
+      {theme === 'dark' && (
+        <div className="absolute top-0 inset-x-0 h-64 pointer-events-none overflow-hidden z-20 select-none">
+          {/* Subtle hanging branch accent */}
+          <div className="absolute top-0 right-0 left-0 h-2 bg-gradient-to-b from-[#1c2c54]/40 to-transparent" />
+          
+          {/* Lantern Wires & Lanterns */}
+          {[
+            { left: '10%', height: '80px', delay: '0s', color: 'text-amber-300' },
+            { left: '25%', height: '120px', delay: '0.8s', color: 'text-yellow-200' },
+            { left: '45%', height: '70px', delay: '1.5s', color: 'text-orange-300' },
+            { left: '60%', height: '100px', delay: '0.3s', color: 'text-amber-400' },
+            { left: '78%', height: '130px', delay: '1.1s', color: 'text-yellow-300' },
+            { left: '90%', height: '90px', delay: '1.9s', color: 'text-amber-200' },
+          ].map((l, idx) => (
+            <div 
+              key={idx} 
+              className="absolute top-0 flex flex-col items-center" 
+              style={{ left: l.left }}
+            >
+              {/* Thin Golden hanging wire */}
+              <div 
+                className="w-[1px] bg-gradient-to-b from-amber-600/60 to-amber-400" 
+                style={{ height: l.height }} 
+              />
+              {/* Star Lantern */}
+              <motion.div
+                animate={{
+                  y: [0, 5, 0],
+                  rotate: [-3, 3, -3],
+                }}
+                transition={{
+                  duration: 4 + idx,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: parseFloat(l.delay),
+                }}
+                className="flex flex-col items-center -mt-1"
+              >
+                {/* Glowing light ball */}
+                <div className="w-2.5 h-2.5 rounded-full bg-amber-300 shadow-[0_0_15px_6px_rgba(251,191,36,0.8)] animate-pulse" />
+                {/* Hanging star */}
+                <svg className={`w-6 h-6 ${l.color} filter drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]`} viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.787 1.4 8.168L12 18.896l-7.334 3.857 1.4-8.168L.132 9.31l8.2-1.192L12 .587z" />
+                </svg>
+              </motion.div>
+            </div>
+          ))}
+
+          {/* Sparkly Ambient Glowing Backdrops */}
+          <div className="absolute top-10 left-1/4 w-72 h-72 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-20 right-1/4 w-80 h-80 bg-blue-500/5 rounded-full blur-3xl pointer-events-none" />
+        </div>
+      )}
+
       {/* Marquee Banner */}
       <div id="global-marquee-banner" className="bg-purple-600 text-white font-bold text-xs py-2 shadow-sm border-b border-purple-700/20 select-none shrink-0 z-40 overflow-hidden w-full">
         <div className="animate-marquee-smooth flex">
@@ -2605,7 +2664,7 @@ export default function App() {
         )}
 
         {/* Sidebar Navigation - Sleek Interface Dark Theme */}
-        <aside className="w-68 bg-slate-900 flex flex-col p-6 hidden md:flex shrink-0 border-r border-slate-800">
+        <aside className="w-68 bg-slate-900 flex flex-col p-6 hidden md:flex shrink-0 border-r border-slate-800 relative z-40">
         {/* Logo / Header */}
         <div className="flex items-center justify-between mb-8 px-2">
           <div className="flex items-center gap-3">
@@ -3004,7 +3063,7 @@ export default function App() {
       {/* Main Content Area */}
       <main className="flex-1 min-h-screen p-4 sm:p-6 md:p-8 space-y-6 overflow-y-auto">
         {/* Mobile Header profile bar */}
-        <div className="md:hidden flex flex-col bg-slate-900 text-white p-4 rounded-2xl border border-slate-800 shadow-lg gap-4">
+        <div className="md:hidden flex flex-col bg-slate-900 text-white p-4 rounded-2xl border border-slate-800 shadow-lg gap-4 relative z-40">
           <div className="flex items-center justify-between w-full">
             <div className="flex items-center gap-2.5 border-transparent">
               {memberProfile?.photoURL ? (
