@@ -58,7 +58,7 @@ export default function AdminMembersDashboard({
   const [portalLogoTextColor, setPortalLogoTextColor] = useState('#FFFFFF');
   const [portalLogoImageUrl, setPortalLogoImageUrl] = useState('');
   const [portalTitle, setPortalTitle] = useState('Luypay Ledger');
-  const [portalMarqueeText, setPortalMarqueeText] = useState('មានទទួលដាក់លុយឈរលុយឆក ចាប់ពី 50$ រហូតដល់ 500$ | Facebook: ឈ្មោះ Pich Rachana');
+  const [portalMarqueeText, setPortalMarqueeText] = useState('មានទទួលដាក់លុយឈរលុយឆក់ ចាប់ពី 50$ រហូតដល់ 500$ | Facebook: ឈ្មោះ Pich Rachana');
   const [portalNoticeTitle, setPortalNoticeTitle] = useState('សេចក្តីជូនដំណឹងអំពីគណនេយ្យ');
   const [portalNoticeText, setPortalNoticeText] = useState('ទំព័រនេះសម្រាប់ត្រួតពិនិត្យសមតុល្យ និងប្រវត្តិសងប្រាក់ផ្ទាល់ខ្លួន។ រាល់ការបង់ប្រាក់ដែលលោកអ្នកបានវេរ ឬប្រគល់ជូន នឹងត្រូវម្ចាស់បំណុលបញ្ជាក់ និងកត់ត្រាចូលក្នុងប្រព័ន្ធនេះភ្លាមៗ។');
   
@@ -108,7 +108,7 @@ export default function AdminMembersDashboard({
           setPortalLogoTextColor(data.logoTextColor || '#FFFFFF');
           setPortalLogoImageUrl(data.logoImageUrl || '');
           setPortalTitle(data.portalTitle || 'Luypay Ledger');
-          setPortalMarqueeText(data.marqueeText || 'មានទទួលដាក់លុយឈរលុយឆក ចាប់ពី 50$ រហូតដល់ 500$ | Facebook: ឈ្មោះ Pich Rachana');
+          setPortalMarqueeText(data.marqueeText || 'មានទទួលដាក់លុយឈរលុយឆក់ ចាប់ពី 50$ រហូតដល់ 500$ | Facebook: ឈ្មោះ Pich Rachana');
           setPortalNoticeTitle(data.noticeTitle || 'សេចក្តីជូនដំណឹងអំពីគណនេយ្យ');
           setPortalNoticeText(data.noticeText || 'ទំព័រនេះសម្រាប់ត្រួតពិនិត្យសមតុល្យ និងប្រវត្តិសងប្រាក់ផ្ទាល់ខ្លួន។ រាល់ការបង់ប្រាក់ដែលលោកអ្នកបានវេរ ឬប្រគល់ជូន នឹងត្រូវម្ចាស់បំណុលបញ្ជាក់ និងកត់ត្រាចូលក្នុងប្រព័ន្ធនេះភ្លាមៗ។');
           setPortalSponsorImageUrl(data.sponsorImageUrl || '');
@@ -1217,7 +1217,7 @@ export default function AdminMembersDashboard({
                       type="text"
                       value={systemName}
                       onChange={(e) => setSystemName(e.target.value)}
-                      placeholder={language === 'kh' ? 'ប្រព័ន្ធលុយឆក' : 'Luypay Ledger'}
+                      placeholder={language === 'kh' ? 'ប្រព័ន្ធលុយឆក់' : 'Luypay Ledger'}
                       className="w-full px-3 py-2 text-sm border border-slate-200 bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-bold"
                     />
                     <p className="text-[9px] text-slate-400 font-medium">

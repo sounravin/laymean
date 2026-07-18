@@ -4,9 +4,9 @@ export type Language = 'kh' | 'en';
 
 const translations = {
   kh: {
-    appName: 'ប្រព័ន្ធលុយឆក',
+    appName: 'ប្រព័ន្ធលុយឆក់',
     appSubtitle: 'INSTALLMENT LEDGER',
-    mainTitle: 'សៀវភៅកត់ត្រាលុយឆក',
+    mainTitle: 'កត់ត្រាលុយឆក់',
     mainSubtitle: 'គ្រប់គ្រងការខ្ចីប្រាក់ប្រចាំថ្ងៃ/សប្តាហ៍ តាមដានការសង និងគណនាប្រាក់នៅសល់ដោយស្វ័យប្រវត្ត',
     importBtn: '📥 នាំចូលទិន្នន័យ (Import)',
     backupBtn: '💾 រក្សាទុកទិន្នន័យ (Backup)',
@@ -63,7 +63,7 @@ const translations = {
     adminBadge: 'Admin',
     userBadge: 'User',
     marqueePrefix: '✨ សេចក្តីជូនដំណឹង៖',
-    marqueeText: 'មានទទួលដាក់លុយឈរលុយឆក ចាប់ពី 50$ រហូតដល់ 500$ | Facebook: ឈ្មោះ Pich Rachana',
+    marqueeText: 'មានទទួលដាក់លុយឈរលុយឆក់ ចាប់ពី 50$ រហូតដល់ 500$ | Facebook: ឈ្មោះ Pich Rachana',
     langKhmer: 'ខ្មែរ',
     langEnglish: 'English',
     changeLang: 'ប្តូរភាសា / Language',

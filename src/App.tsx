@@ -8,11 +8,12 @@ import AddBorrowerModal from './components/AddBorrowerModal';
 import BorrowerPortal from './components/BorrowerPortal';
 import AdminMembersDashboard from './components/AdminMembersDashboard';
 import PricingPanel from './components/PricingPanel';
+import NotificationBell from './components/NotificationBell';
 import { Search, Info, Check, CheckSquare, RefreshCw, Star, Lock, LogOut, ShieldCheck, Cloud, Mail, Key, ArrowLeft, Award, Activity, CheckCircle2, Share2, Copy, Plus, Percent, ChevronRight, Coins, Users, Bell, BookOpen, MessageSquare, Settings, ShieldAlert, Moon, Sun, Upload, Camera, Clock, QrCode } from 'lucide-react';
 import { collection, query, where, onSnapshot, doc, setDoc, deleteDoc, writeBatch, getDoc } from 'firebase/firestore';
 import { db } from './lib/firebase';
 import { useLanguage } from './i18n';
-import { AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 
 const LOCAL_STORAGE_KEY = 'luypay_ledger_borrowers';
 
@@ -1580,7 +1581,7 @@ export default function App() {
     const dataStr = JSON.stringify(borrowers, null, 2);
     const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
     
-    const exportFileDefaultName = `សៀវភៅកត់ត្រាលុយឆក_ចម្លងបម្រុងទុក_${getTodayDateString()}.json`;
+    const exportFileDefaultName = `កត់ត្រាលុយឆក់_ចម្លងបម្រុងទុក_${getTodayDateString()}.json`;
     
     const linkElement = document.createElement('a');
     linkElement.setAttribute('href', dataUri);
@@ -1722,470 +1723,578 @@ export default function App() {
 
   if (!isLoggedIn) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col antialiased font-sans relative overflow-hidden">
-        {/* Marquee Banner */}
-        <div id="login-marquee-banner" className="bg-amber-500 text-slate-950 font-bold text-xs py-2 shadow-sm border-b border-amber-600/20 select-none shrink-0 z-40 overflow-hidden w-full">
-          <div className="animate-marquee-smooth flex">
-            <span className="inline-block mr-12 shrink-0">
-              ✨ <span className="font-extrabold text-amber-950">{t('marqueePrefix')}</span> {t('marqueeText')}
-            </span>
-            <span className="inline-block mr-12 shrink-0">
-              ✨ <span className="font-extrabold text-amber-950">{t('marqueePrefix')}</span> {t('marqueeText')}
-            </span>
-            <span className="inline-block mr-12 shrink-0">
-              ✨ <span className="font-extrabold text-amber-950">{t('marqueePrefix')}</span> {t('marqueeText')}
-            </span>
-            <span className="inline-block mr-12 shrink-0">
-              ✨ <span className="font-extrabold text-amber-950">{t('marqueePrefix')}</span> {t('marqueeText')}
-            </span>
-          </div>
-        </div>
+      <div className="min-h-screen bg-[#030712] flex flex-col antialiased font-sans relative overflow-hidden">
+        {/* Animated Background Floating Auroras */}
+        <motion.div
+          animate={{
+            x: [0, 80, -40, 0],
+            y: [0, -60, 40, 0],
+            scale: [1, 1.15, 0.9, 1],
+          }}
+          transition={{
+            duration: 16,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          className="absolute top-10 left-10 w-80 h-80 rounded-full bg-blue-600/15 blur-3xl pointer-events-none"
+        />
+        <motion.div
+          animate={{
+            x: [0, -70, 60, 0],
+            y: [0, 50, -70, 0],
+            scale: [1, 0.9, 1.1, 1],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          className="absolute bottom-10 right-10 w-96 h-96 rounded-full bg-violet-600/10 blur-3xl pointer-events-none"
+        />
+        <motion.div
+          animate={{
+            x: [0, 40, -50, 0],
+            y: [0, -30, 60, 0],
+          }}
+          transition={{
+            duration: 24,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          className="absolute top-1/2 left-1/4 w-72 h-72 rounded-full bg-emerald-500/5 blur-3xl pointer-events-none"
+        />
 
-        <div className="flex-1 flex flex-col justify-center items-center p-4 relative">
+        {/* Technical Grid Overlay */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-25 pointer-events-none" />
+
+        <div className="flex-1 flex flex-col justify-center items-center p-4 relative z-10">
           {/* Top-Right Language Switcher */}
-          <div className="absolute top-4 right-4 z-20 flex gap-2">
-            <button
+          <div className="absolute top-6 right-6 z-20 flex gap-2">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               type="button"
               onClick={() => setLanguage('kh')}
-              className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+              className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm ${
                 language === 'kh'
-                  ? 'bg-blue-600/10 border-blue-500/50 text-blue-400 font-extrabold'
-                  : 'bg-slate-950/40 border-slate-800 text-slate-400 hover:text-slate-300'
+                  ? 'bg-blue-600/15 border-blue-500/50 text-blue-400 font-extrabold shadow-blue-500/10'
+                  : 'bg-slate-900/40 border-slate-800 text-slate-400 hover:text-slate-300'
               }`}
             >
-              <span>🇰🇭</span>
+              <span className="text-sm">🇰🇭</span>
               <span>ខ្មែរ</span>
-            </button>
-            <button
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               type="button"
               onClick={() => setLanguage('en')}
-              className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+              className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm ${
                 language === 'en'
-                  ? 'bg-blue-600/10 border-blue-500/50 text-blue-400 font-extrabold'
-                  : 'bg-slate-950/40 border-slate-800 text-slate-400 hover:text-slate-300'
+                  ? 'bg-blue-600/15 border-blue-500/50 text-blue-400 font-extrabold shadow-blue-500/10'
+                  : 'bg-slate-900/40 border-slate-800 text-slate-400 hover:text-slate-300'
               }`}
             >
-              <span>🇺🇸</span>
+              <span className="text-sm">🇺🇸</span>
               <span>EN</span>
-            </button>
+            </motion.button>
           </div>
-
-          {/* Background ambient glow effect */}
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
-          <div className="absolute bottom-1/4 left-1/3 -translate-x-1/2 w-72 h-72 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
 
           {/* Toast Notification inside login */}
-          {notification && (
-            <div id="toast-notif-login" className="fixed top-5 left-1/2 -translate-x-1/2 z-50 animate-bounce">
-              <div className="px-5 py-3 rounded-xl shadow-xl flex items-center gap-2 border text-xs font-bold transition-all bg-blue-600 text-white border-blue-500 shadow-blue-500/10">
-                <CheckSquare className="w-4 h-4 text-white" />
-                <span>{notification.message}</span>
-              </div>
-            </div>
-          )}
+          <AnimatePresence>
+            {notification && (
+              <motion.div
+                initial={{ opacity: 0, y: -20, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.9 }}
+                className="fixed top-6 left-1/2 -translate-x-1/2 z-50 shadow-lg"
+              >
+                <div className="px-5 py-3 rounded-xl flex items-center gap-2 border text-xs font-bold bg-blue-600 text-white border-blue-500 shadow-xl shadow-blue-600/20">
+                  <CheckSquare className="w-4 h-4 text-white shrink-0" />
+                  <span>{notification.message}</span>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-          <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl space-y-6 relative z-10">
-            {/* Logo */}
-            <div className="flex flex-col items-center text-center space-y-3">
-              {renderSystemLogo("w-16 h-16")}
+          {/* Premium Glassmorphic Login Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 30, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{
+              type: "spring",
+              stiffness: 110,
+              damping: 16,
+            }}
+            className="w-full max-w-md bg-slate-900/50 backdrop-blur-2xl border border-slate-800/80 rounded-3xl p-8 shadow-[0_20px_50px_rgba(0,0,0,0.6),_0_0_80px_rgba(37,99,235,0.06)] space-y-6 relative overflow-hidden"
+          >
+            {/* Top Glowing Trace Bar */}
+            <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-blue-500 via-purple-500 to-emerald-500" />
+
+            {/* Logo and System Title */}
+            <div className="flex flex-col items-center text-center space-y-3 pt-2">
+              <motion.div
+                whileHover={{ rotate: [0, -10, 10, -10, 0] }}
+                transition={{ duration: 0.5 }}
+                className="cursor-pointer"
+              >
+                {renderSystemLogo("w-16 h-16 shadow-lg shadow-blue-500/10")}
+              </motion.div>
               <div>
-                <h1 className="text-white text-xl font-black tracking-tight">{logoConfig?.systemName || t('appName')}</h1>
-                <p className="text-xs text-slate-400 mt-1 font-bold">{t('appSubtitle')}</p>
+                <h1 className="text-white text-xl font-black tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">
+                  {logoConfig?.systemName || t('appName')}
+                </h1>
+                <p className="text-[10px] text-blue-400/90 font-extrabold tracking-widest uppercase mt-1">{t('appSubtitle')}</p>
               </div>
             </div>
 
-            {/* Render Sign In View */}
-            {loginMode === 'signin' && (
-              <>
-                <div className="bg-slate-950/50 border border-slate-800 p-4 rounded-2xl space-y-1 text-xs">
-                  <p className="text-blue-400 font-bold flex items-center gap-1.5 mb-1">
-                    <span>🛡️ {language === 'kh' ? 'គណនីការពារទិន្នន័យពីការបាត់បង់' : 'Data Loss Protection Account'}</span>
-                  </p>
-                  <p className="text-slate-400 leading-relaxed">
-                    {language === 'kh' 
-                      ? 'សូមប្រើប្រាស់គណនីផ្លូវការតែមួយគត់របស់អ្នក ដើម្បីកត់ត្រា និងសមកាលកម្មទិន្នន័យឱ្យមានសុវត្ថិភាពខ្ពស់បំផុត។'
-                      : 'Please use your official account to record and synchronize your data with maximum security.'}
-                  </p>
-                </div>
-
-                <form onSubmit={handleCredentialsLogin} className="space-y-4">
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">{t('usernameLabel')}</label>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm flex items-center justify-center pointer-events-none select-none">👤</span>
-                      <input
-                        type="text"
-                        value={loginUsername}
-                        onChange={(e) => {
-                          setLoginUsername(e.target.value);
-                          setLoginError('');
-                        }}
-                        placeholder={language === 'kh' ? 'បញ្ចូលឈ្មោះអ្នកប្រើប្រាស់' : 'Enter username'}
-                        className="w-full pl-11 pr-4 py-2.5 text-xs bg-slate-950/80 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 text-white font-bold transition duration-150"
-                        required
-                      />
-                    </div>
+            {/* Animated Inner Forms */}
+            <AnimatePresence mode="wait">
+              {loginMode === 'signin' && (
+                <motion.div
+                  key="signin"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.25, ease: "easeInOut" }}
+                  className="space-y-6"
+                >
+                  <div className="bg-slate-950/40 border border-slate-800/60 p-4 rounded-2xl space-y-1 text-xs">
+                    <p className="text-blue-400 font-bold flex items-center gap-1.5 mb-1">
+                      <span>🛡️ {language === 'kh' ? 'គណនីការពារទិន្នន័យពីការបាត់បង់' : 'Data Loss Protection Account'}</span>
+                    </p>
+                    <p className="text-slate-400 leading-relaxed font-medium">
+                      {language === 'kh' 
+                        ? 'សូមប្រើប្រាស់គណនីផ្លូវការតែមួយគត់របស់អ្នក ដើម្បីកត់ត្រា និងសមកាលកម្មទិន្នន័យឱ្យមានសុវត្ថិភាពខ្ពស់បំផុត។'
+                        : 'Please use your official account to record and synchronize your data with maximum security.'}
+                    </p>
                   </div>
 
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t('passwordLabel')}</label>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setLoginMode('forgot_password');
-                          setResetStep('request');
-                          setForgotError('');
-                          setForgotEmail('');
-                        }}
-                        className="text-[10px] text-blue-400 hover:underline font-bold"
-                      >
-                        {t('forgotPasswordLink')}
-                      </button>
-                    </div>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm flex items-center justify-center pointer-events-none select-none">🔒</span>
-                      <input
-                        type="password"
-                        value={loginPassword}
-                        onChange={(e) => {
-                          setLoginPassword(e.target.value);
-                          setLoginError('');
-                        }}
-                        placeholder="••••••••••••"
-                        className="w-full pl-11 pr-4 py-2.5 text-xs bg-slate-950/80 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 text-white font-bold transition duration-150"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  {loginError && (
-                    <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-[11px] text-rose-400 font-bold text-center">
-                      ⚠️ {loginError}
-                    </div>
-                  )}
-
-                  <button
-                    type="submit"
-                    className="w-full py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold rounded-xl text-xs shadow-lg shadow-blue-600/20 transition duration-150 flex items-center justify-center gap-1.5 cursor-pointer"
-                  >
-                    <span>{t('signInBtn')}</span>
-                  </button>
-                </form>
-
-                {/* Switch to Register */}
-                <div className="border-t border-slate-800 pt-4 text-center">
-                  <p className="text-xs text-slate-400">
-                    {t('noAccountText')}{" "}
-                    <button
-                      onClick={() => {
-                        setLoginMode('register');
-                        setRegError('');
-                        setRegUsername('');
-                        setRegEmail('');
-                        setRegPassword('');
-                      }}
-                      className="text-emerald-400 hover:underline font-black"
-                    >
-                      {t('registerMemberLink')}
-                    </button>
-                  </p>
-                </div>
-
-                {/* Divider */}
-                <div className="flex items-center gap-3">
-                  <div className="h-px bg-slate-800 flex-1"></div>
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{t('orSocials')}</span>
-                  <div className="h-px bg-slate-800 flex-1"></div>
-                </div>
-
-                {/* Social Sign-In Buttons */}
-                <div className="space-y-3">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setAuthModalType('google');
-                      setRegError('');
-                      setShowAuthModal(true);
-                    }}
-                    className="w-full py-2.5 bg-white hover:bg-slate-50 active:bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 transition duration-150 flex items-center justify-center gap-2.5 cursor-pointer shadow-md"
-                  >
-                    <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
-                      <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.92h6.61c-.29 1.5-1.14 2.78-2.4 3.63v3.02h3.86c2.26-2.08 3.56-5.14 3.56-8.5Z"/>
-                      <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3.02c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96H1.32v3.11C3.31 21.88 7.37 24 12 24Z"/>
-                      <path fill="#FBBC05" d="M5.27 14.27a7.2 7.2 0 0 1 0-4.54V6.62H1.32a11.96 11.96 0 0 0 0 10.76l3.95-3.11Z"/>
-                      <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.44-3.44C17.93 1.19 15.24 0 12 0 7.37 0 3.31 2.12 1.32 5.62l3.95 3.11c.95-2.85 3.6-4.98 6.73-4.98Z"/>
-                    </svg>
-                    <span>{t('signInWithGoogle')}</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setAuthModalType('facebook');
-                      setRegError('');
-                      setShowAuthModal(true);
-                    }}
-                    className="w-full py-2.5 bg-[#1877F2] hover:bg-[#166FE5] active:bg-[#1565C0] rounded-xl text-xs font-bold text-white transition duration-150 flex items-center justify-center gap-2.5 cursor-pointer shadow-md"
-                  >
-                    <svg className="w-4 h-4 shrink-0 fill-current" viewBox="0 0 24 24">
-                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                    </svg>
-                    <span>{t('signInWithFacebook')}</span>
-                  </button>
-                </div>
-              </>
-            )}
-
-            {/* Render Register View */}
-            {loginMode === 'register' && (
-              <>
-                <div className="bg-slate-950/50 border border-slate-800 p-4 rounded-2xl text-xs space-y-1.5">
-                  <p className="text-emerald-400 font-bold flex items-center gap-1.5">
-                    <span>{t('regNoticeTitle')}</span>
-                  </p>
-                  <p className="text-slate-400 leading-relaxed">
-                    {t('regNoticeDesc')}
-                  </p>
-                </div>
-
-                <form onSubmit={handleMemberRegister} className="space-y-4">
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">{t('usernameLabel')}</label>
-                    <div className="relative">
-                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs">👤</span>
-                      <input
-                        type="text"
-                        value={regUsername}
-                        onChange={(e) => setRegUsername(e.target.value)}
-                        placeholder="rithy99"
-                        className="w-full pl-9 pr-4 py-2.5 text-xs bg-slate-950/80 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 text-white font-bold transition duration-150"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">{t('emailLabel')}</label>
-                    <div className="relative">
-                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs">✉️</span>
-                      <input
-                        type="email"
-                        value={regEmail}
-                        onChange={(e) => setRegEmail(e.target.value)}
-                        placeholder="rithy@gmail.com"
-                        className="w-full pl-9 pr-4 py-2.5 text-xs bg-slate-950/80 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 text-white font-bold transition duration-150"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">{t('passwordLabel')}</label>
-                    <div className="relative">
-                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs">🔒</span>
-                      <input
-                        type="password"
-                        value={regPassword}
-                        onChange={(e) => setRegPassword(e.target.value)}
-                        placeholder="••••••••••••"
-                        className="w-full pl-9 pr-4 py-2.5 text-xs bg-slate-950/80 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 text-white font-bold transition duration-150"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  {regError && (
-                    <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-[11px] text-rose-400 font-bold text-center">
-                      ⚠️ {regError}
-                    </div>
-                  )}
-
-                  <button
-                    type="submit"
-                    disabled={authLoading}
-                    className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold rounded-xl text-xs shadow-lg shadow-emerald-600/20 transition duration-150 flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
-                  >
-                    {authLoading ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span>{language === 'kh' ? 'កំពុងចុះឈ្មោះ...' : 'Registering...'}</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>{t('registerBtn')}</span>
-                      </>
-                    )}
-                  </button>
-                </form>
-
-                <div className="border-t border-slate-800 pt-4 text-center">
-                  <button
-                    onClick={() => setLoginMode('signin')}
-                    className="text-xs text-slate-400 hover:text-white hover:underline font-bold inline-flex items-center gap-1.5"
-                  >
-                    <ArrowLeft className="w-3.5 h-3.5" /> {t('backToLogin')}
-                  </button>
-                </div>
-              </>
-            )}
-
-            {/* Render Forgot Password View */}
-            {loginMode === 'forgot_password' && (
-              <>
-                <div className="bg-slate-950/50 border border-slate-800 p-4 rounded-2xl text-xs space-y-1.5">
-                  <p className="text-blue-400 font-bold flex items-center gap-1.5">
-                    <span>{t('forgotPasswordTitle')}</span>
-                  </p>
-                  <p className="text-slate-400 leading-relaxed">
-                    {t('forgotPasswordDesc')}
-                  </p>
-                </div>
-
-                {/* Step 1: Request Email */}
-                {resetStep === 'request' && (
-                  <form onSubmit={handleForgotPasswordRequest} className="space-y-4">
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">{t('memberEmailLabel')}</label>
-                      <div className="relative">
-                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs">✉️</span>
-                        <input
-                          type="email"
-                          value={forgotEmail}
-                          onChange={(e) => setForgotEmail(e.target.value)}
-                          placeholder="member@gmail.com"
-                          className="w-full pl-9 pr-4 py-2.5 text-xs bg-slate-950/80 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 text-white font-bold transition duration-150"
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    {forgotError && (
-                      <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-[11px] text-rose-400 font-bold text-center">
-                        ⚠️ {forgotError}
-                      </div>
-                    )}
-
-                    <button
-                      type="submit"
-                      disabled={authLoading}
-                      className="w-full py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold rounded-xl text-xs shadow-lg shadow-blue-600/20 transition duration-150 flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
-                    >
-                      {authLoading ? (
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      ) : (
-                        <span>{t('sendCodeBtn')}</span>
-                      )}
-                    </button>
-                  </form>
-                )}
-
-                {/* Step 2: Verify Code */}
-                {resetStep === 'verify' && (
-                  <form onSubmit={handleForgotPasswordVerify} className="space-y-4">
-                    <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-[11px] text-emerald-400 font-bold space-y-1">
-                      <p className="flex items-center gap-1.5">
-                        <CheckCircle2 className="w-4 h-4" />
-                        <span>{t('codeSentTitle')}</span>
-                      </p>
-                      <p className="text-slate-400 font-normal leading-relaxed">
-                        {t('codeSentDesc').replace('{email}', forgotEmail)}
-                      </p>
-                      <p className="text-[10px] text-amber-500/80 font-normal leading-relaxed border-t border-slate-800/60 pt-1.5 mt-1.5">
-                        {language === 'kh'
-                          ? `💡 ប្រសិនបើមានបញ្ហាយឺតយ៉ាវ ឬមិនបានទទួល៖ កូដសង្គ្រោះបម្រុងរបស់អ្នកគឺ ${verificationCode} (or use 123456)។`
-                          : `💡 If you experience delays or didn't receive it: your backup recovery code is ${verificationCode} (or use 123456).`}
-                      </p>
-                    </div>
-
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">{t('enter6DigitCode')}</label>
-                      <div className="relative">
-                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs">🔢</span>
+                  <form onSubmit={handleCredentialsLogin} className="space-y-4">
+                    <div className="space-y-1.5">
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider">{t('usernameLabel')}</label>
+                      <div className="relative group">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none select-none transition-transform group-focus-within:scale-110">👤</span>
                         <input
                           type="text"
-                          maxLength={6}
-                          value={enteredCode}
-                          onChange={(e) => setEnteredCode(e.target.value)}
-                          placeholder="123456"
-                          className="w-full pl-9 pr-4 py-2.5 text-xs bg-slate-950/80 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 text-white font-extrabold tracking-widest text-center transition duration-150"
+                          value={loginUsername}
+                          onChange={(e) => {
+                            setLoginUsername(e.target.value);
+                            setLoginError('');
+                          }}
+                          placeholder={language === 'kh' ? 'បញ្ចូលឈ្មោះអ្នកប្រើប្រាស់' : 'Enter username'}
+                          className="w-full pl-11 pr-4 py-2.5 text-xs bg-slate-950/70 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-white font-bold transition duration-200"
                           required
                         />
                       </div>
                     </div>
 
-                    {forgotError && (
-                      <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-[11px] text-rose-400 font-bold text-center">
-                        ⚠️ {forgotError}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider">{t('passwordLabel')}</label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setLoginMode('forgot_password');
+                            setResetStep('request');
+                            setForgotError('');
+                            setForgotEmail('');
+                          }}
+                          className="text-[10px] text-blue-400 hover:text-blue-300 font-bold hover:underline transition"
+                        >
+                          {t('forgotPasswordLink')}
+                        </button>
                       </div>
-                    )}
-
-                    <button
-                      type="submit"
-                      className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold rounded-xl text-xs shadow-lg shadow-emerald-600/20 transition duration-150 flex items-center justify-center gap-1.5 cursor-pointer"
-                    >
-                      <span>{t('verifyCodeBtn')}</span>
-                    </button>
-                  </form>
-                )}
-
-                {/* Step 3: New Password */}
-                {resetStep === 'new_password' && (
-                  <form onSubmit={handleForgotPasswordReset} className="space-y-4">
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">{t('newPasswordLabel')}</label>
-                      <div className="relative">
-                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs">🔒</span>
+                      <div className="relative group">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none select-none transition-transform group-focus-within:scale-110">🔒</span>
                         <input
                           type="password"
-                          value={newPassword}
-                          onChange={(e) => setNewPassword(e.target.value)}
-                          placeholder="••••••••"
-                          className="w-full pl-9 pr-4 py-2.5 text-xs bg-slate-950/80 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 text-white font-bold transition duration-150"
+                          value={loginPassword}
+                          onChange={(e) => {
+                            setLoginPassword(e.target.value);
+                            setLoginError('');
+                          }}
+                          placeholder="••••••••••••"
+                          className="w-full pl-11 pr-4 py-2.5 text-xs bg-slate-950/70 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-white font-bold transition duration-200"
                           required
                         />
                       </div>
                     </div>
 
-                    {forgotError && (
-                      <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-[11px] text-rose-400 font-bold text-center">
-                        ⚠️ {forgotError}
-                      </div>
+                    {loginError && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-[11px] text-rose-400 font-bold text-center"
+                      >
+                        ⚠️ {loginError}
+                      </motion.div>
                     )}
 
-                    <button
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      type="submit"
+                      className="w-full py-3 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 active:from-blue-700 active:to-blue-600 text-white font-bold rounded-xl text-xs shadow-lg shadow-blue-600/20 transition cursor-pointer flex items-center justify-center gap-1.5"
+                    >
+                      <span>{t('signInBtn')}</span>
+                    </motion.button>
+                  </form>
+
+                  {/* Switch to Register */}
+                  <div className="border-t border-slate-800/60 pt-4 text-center">
+                    <p className="text-xs text-slate-400">
+                      {t('noAccountText')}{" "}
+                      <button
+                        onClick={() => {
+                          setLoginMode('register');
+                          setRegError('');
+                          setRegUsername('');
+                          setRegEmail('');
+                          setRegPassword('');
+                        }}
+                        className="text-emerald-400 hover:text-emerald-300 font-black hover:underline transition"
+                      >
+                        {t('registerMemberLink')}
+                      </button>
+                    </p>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="flex items-center gap-3">
+                    <div className="h-px bg-slate-800/60 flex-1"></div>
+                    <span className="text-[9px] text-slate-500 font-black uppercase tracking-wider">{t('orSocials')}</span>
+                    <div className="h-px bg-slate-800/60 flex-1"></div>
+                  </div>
+
+                  {/* Social Sign-In Buttons */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      type="button"
+                      onClick={() => {
+                        setAuthModalType('google');
+                        setRegError('');
+                        setShowAuthModal(true);
+                      }}
+                      className="py-2.5 bg-slate-950/40 hover:bg-slate-950/60 border border-slate-800 rounded-xl text-xs font-bold text-slate-200 transition flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                    >
+                      <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.92h6.61c-.29 1.5-1.14 2.78-2.4 3.63v3.02h3.86c2.26-2.08 3.56-5.14 3.56-8.5Z"/>
+                        <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3.02c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96H1.32v3.11C3.31 21.88 7.37 24 12 24Z"/>
+                        <path fill="#FBBC05" d="M5.27 14.27a7.2 7.2 0 0 1 0-4.54V6.62H1.32a11.96 11.96 0 0 0 0 10.76l3.95-3.11Z"/>
+                        <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.44-3.44C17.93 1.19 15.24 0 12 0 7.37 0 3.31 2.12 1.32 5.62l3.95 3.11c.95-2.85 3.6-4.98 6.73-4.98Z"/>
+                      </svg>
+                      <span>Google</span>
+                    </motion.button>
+
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      type="button"
+                      onClick={() => {
+                        setAuthModalType('facebook');
+                        setRegError('');
+                        setShowAuthModal(true);
+                      }}
+                      className="py-2.5 bg-[#1877F2]/10 hover:bg-[#1877F2]/20 border border-[#1877F2]/20 rounded-xl text-xs font-bold text-[#1877F2] transition flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                    >
+                      <svg className="w-4 h-4 shrink-0 fill-current" viewBox="0 0 24 24">
+                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                      </svg>
+                      <span>Facebook</span>
+                    </motion.button>
+                  </div>
+                </motion.div>
+              )}
+
+              {loginMode === 'register' && (
+                <motion.div
+                  key="register"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.25, ease: "easeInOut" }}
+                  className="space-y-6"
+                >
+                  <div className="bg-slate-950/40 border border-slate-800/60 p-4 rounded-2xl text-xs space-y-1.5">
+                    <p className="text-emerald-400 font-bold flex items-center gap-1.5">
+                      <span>{t('regNoticeTitle')}</span>
+                    </p>
+                    <p className="text-slate-400 leading-relaxed font-medium">
+                      {t('regNoticeDesc')}
+                    </p>
+                  </div>
+
+                  <form onSubmit={handleMemberRegister} className="space-y-4">
+                    <div className="space-y-1.5">
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider">{t('usernameLabel')}</label>
+                      <div className="relative">
+                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs pointer-events-none select-none">👤</span>
+                        <input
+                          type="text"
+                          value={regUsername}
+                          onChange={(e) => setRegUsername(e.target.value)}
+                          placeholder="rithy99"
+                          className="w-full pl-9 pr-4 py-2.5 text-xs bg-slate-950/70 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-white font-bold transition duration-200"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider">{t('emailLabel')}</label>
+                      <div className="relative">
+                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs pointer-events-none select-none">✉️</span>
+                        <input
+                          type="email"
+                          value={regEmail}
+                          onChange={(e) => setRegEmail(e.target.value)}
+                          placeholder="rithy@gmail.com"
+                          className="w-full pl-9 pr-4 py-2.5 text-xs bg-slate-950/70 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-white font-bold transition duration-200"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider">{t('passwordLabel')}</label>
+                      <div className="relative">
+                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs pointer-events-none select-none">🔒</span>
+                        <input
+                          type="password"
+                          value={regPassword}
+                          onChange={(e) => setRegPassword(e.target.value)}
+                          placeholder="••••••••••••"
+                          className="w-full pl-9 pr-4 py-2.5 text-xs bg-slate-950/70 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-white font-bold transition duration-200"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    {regError && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-[11px] text-rose-400 font-bold text-center"
+                      >
+                        ⚠️ {regError}
+                      </motion.div>
+                    )}
+
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                       type="submit"
                       disabled={authLoading}
-                      className="w-full py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold rounded-xl text-xs shadow-lg shadow-blue-600/20 transition duration-150 flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                      className="w-full py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-600 active:from-emerald-700 active:to-emerald-600 text-white font-bold rounded-xl text-xs shadow-lg shadow-emerald-600/20 transition cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50"
                     >
                       {authLoading ? (
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          <span>{language === 'kh' ? 'កំពុងចុះឈ្មោះ...' : 'Registering...'}</span>
+                        </>
                       ) : (
-                        <span>{t('saveNewPasswordBtn')}</span>
+                        <>
+                          <span>{t('registerBtn')}</span>
+                        </>
                       )}
-                    </button>
+                    </motion.button>
                   </form>
-                )}
 
-                <div className="border-t border-slate-800 pt-4 text-center">
-                  <button
-                    onClick={() => {
-                      setLoginMode('signin');
-                      setResetStep('request');
-                      setForgotError('');
-                    }}
-                    className="text-xs text-slate-400 hover:text-white hover:underline font-bold inline-flex items-center gap-1.5"
-                  >
-                    <ArrowLeft className="w-3.5 h-3.5" /> {t('backToLogin')}
-                  </button>
-                </div>
-              </>
-            )}
+                  <div className="border-t border-slate-800/60 pt-4 text-center">
+                    <button
+                      onClick={() => setLoginMode('signin')}
+                      className="text-xs text-slate-400 hover:text-white hover:underline font-bold inline-flex items-center gap-1.5 transition"
+                    >
+                      <ArrowLeft className="w-3.5 h-3.5" /> {t('backToLogin')}
+                    </button>
+                  </div>
+                </motion.div>
+              )}
 
-            <p className="text-center text-[10px] text-slate-500 font-semibold">
+              {loginMode === 'forgot_password' && (
+                <motion.div
+                  key="forgot"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.25, ease: "easeInOut" }}
+                  className="space-y-6"
+                >
+                  <div className="bg-slate-950/40 border border-slate-800/60 p-4 rounded-2xl text-xs space-y-1.5">
+                    <p className="text-blue-400 font-bold flex items-center gap-1.5">
+                      <span>{t('forgotPasswordTitle')}</span>
+                    </p>
+                    <p className="text-slate-400 leading-relaxed font-medium">
+                      {t('forgotPasswordDesc')}
+                    </p>
+                  </div>
+
+                  {/* Step 1: Request Email */}
+                  {resetStep === 'request' && (
+                    <form onSubmit={handleForgotPasswordRequest} className="space-y-4">
+                      <div className="space-y-1.5">
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider">{t('memberEmailLabel')}</label>
+                        <div className="relative">
+                          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs pointer-events-none select-none">✉️</span>
+                          <input
+                            type="email"
+                            value={forgotEmail}
+                            onChange={(e) => setForgotEmail(e.target.value)}
+                            placeholder="member@gmail.com"
+                            className="w-full pl-9 pr-4 py-2.5 text-xs bg-slate-950/70 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-white font-bold transition duration-200"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      {forgotError && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-[11px] text-rose-400 font-bold text-center"
+                        >
+                          ⚠️ {forgotError}
+                        </motion.div>
+                      )}
+
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        type="submit"
+                        disabled={authLoading}
+                        className="w-full py-3 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 active:from-blue-700 active:to-blue-600 text-white font-bold rounded-xl text-xs shadow-lg shadow-blue-600/20 transition cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50"
+                      >
+                        {authLoading ? (
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        ) : (
+                          <span>{t('sendCodeBtn')}</span>
+                        )}
+                      </motion.button>
+                    </form>
+                  )}
+
+                  {/* Step 2: Verify Code */}
+                  {resetStep === 'verify' && (
+                    <form onSubmit={handleForgotPasswordVerify} className="space-y-4">
+                      <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-[11px] text-emerald-400 font-bold space-y-1">
+                        <p className="flex items-center gap-1.5">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <span>{t('codeSentTitle')}</span>
+                        </p>
+                        <p className="text-slate-400 font-normal leading-relaxed">
+                          {t('codeSentDesc').replace('{email}', forgotEmail)}
+                        </p>
+                        <p className="text-[10px] text-amber-500/80 font-normal leading-relaxed border-t border-slate-850 pt-1.5 mt-1.5">
+                          {language === 'kh'
+                            ? `💡 ប្រសិនបើមានបញ្ហាយឺតយ៉ាវ ឬមិនបានទទួល៖ កូដសង្គ្រោះបម្រុងរបស់អ្នកគឺ ${verificationCode} (or use 123456)។`
+                            : `💡 If you experience delays or didn't receive it: your backup recovery code is ${verificationCode} (or use 123456).`}
+                        </p>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider">{t('enter6DigitCode')}</label>
+                        <div className="relative">
+                          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs pointer-events-none select-none">🔢</span>
+                          <input
+                            type="text"
+                            maxLength={6}
+                            value={enteredCode}
+                            onChange={(e) => setEnteredCode(e.target.value)}
+                            placeholder="123456"
+                            className="w-full pl-9 pr-4 py-2.5 text-xs bg-slate-950/70 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-white font-extrabold tracking-widest text-center transition duration-200"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      {forgotError && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-[11px] text-rose-400 font-bold text-center"
+                        >
+                          ⚠️ {forgotError}
+                        </motion.div>
+                      )}
+
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        type="submit"
+                        className="w-full py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-600 active:from-emerald-700 active:to-emerald-600 text-white font-bold rounded-xl text-xs shadow-lg shadow-emerald-600/20 transition cursor-pointer flex items-center justify-center gap-1.5"
+                      >
+                        <span>{t('verifyCodeBtn')}</span>
+                      </motion.button>
+                    </form>
+                  )}
+
+                  {/* Step 3: New Password */}
+                  {resetStep === 'new_password' && (
+                    <form onSubmit={handleForgotPasswordReset} className="space-y-4">
+                      <div className="space-y-1.5">
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider">{t('newPasswordLabel')}</label>
+                        <div className="relative">
+                          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs pointer-events-none select-none">🔒</span>
+                          <input
+                            type="password"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            placeholder="••••••••"
+                            className="w-full pl-9 pr-4 py-2.5 text-xs bg-slate-950/70 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-white font-bold transition duration-200"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      {forgotError && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-[11px] text-rose-400 font-bold text-center"
+                        >
+                          ⚠️ {forgotError}
+                        </motion.div>
+                      )}
+
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        type="submit"
+                        disabled={authLoading}
+                        className="w-full py-3 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 active:from-blue-700 active:to-blue-600 text-white font-bold rounded-xl text-xs shadow-lg shadow-blue-600/20 transition cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50"
+                      >
+                        {authLoading ? (
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        ) : (
+                          <span>{t('saveNewPasswordBtn')}</span>
+                        )}
+                      </motion.button>
+                    </form>
+                  )}
+
+                  <div className="border-t border-slate-800/60 pt-4 text-center">
+                    <button
+                      onClick={() => {
+                        setLoginMode('signin');
+                        setResetStep('request');
+                        setForgotError('');
+                      }}
+                      className="text-xs text-slate-400 hover:text-white hover:underline font-bold inline-flex items-center gap-1.5 transition"
+                    >
+                      <ArrowLeft className="w-3.5 h-3.5" /> {t('backToLogin')}
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <p className="text-center text-[10px] text-slate-500 font-semibold pt-2">
               {t('copyright').replace('{year}', String(new Date().getFullYear()))}
             </p>
-          </div>
+          </motion.div>
         </div>
 
         {/* Dynamic Social Auth & Registration Modal */}
@@ -3052,31 +3161,31 @@ export default function App() {
       {/* Main Content Area */}
       <main className="flex-1 min-h-screen p-4 sm:p-6 md:p-8 space-y-6 overflow-y-auto">
         {/* Mobile Header profile bar */}
-        <div className="md:hidden flex flex-col bg-slate-900 text-white p-3.5 rounded-2xl border border-slate-800 shadow-lg gap-3">
+        <div className="md:hidden flex flex-col bg-slate-900 text-white p-4 rounded-2xl border border-slate-800 shadow-lg gap-4">
           <div className="flex items-center justify-between w-full">
             <div className="flex items-center gap-2.5 border-transparent">
               {memberProfile?.photoURL ? (
                 <img
                   src={memberProfile.photoURL}
                   alt={userDisplayName}
-                  className="w-8 h-8 rounded-lg object-cover border border-slate-700 shadow-md"
+                  className="w-11 h-11 rounded-xl object-cover border border-slate-700 shadow-md shrink-0"
                   referrerPolicy="no-referrer"
                 />
               ) : (
-                renderSystemLogo("w-8 h-8")
+                renderSystemLogo("w-11 h-11 shrink-0")
               )}
               <div>
-                <div className="flex items-center gap-1.5">
-                  <p className="text-xs font-bold leading-tight">{logoConfig?.systemName || t('appName')}</p>
-                  <div className="flex items-center gap-1">
+                <div className="flex flex-col gap-1.5">
+                  <p className="text-sm font-black leading-tight">{logoConfig?.systemName || t('appName')}</p>
+                  <div className="flex items-center gap-2">
                     <a
                       href="https://www.facebook.com/share/1F4p12PfJx/?mibextid=wwXIfr"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-slate-400 hover:text-blue-500 transition"
+                      className="p-1.5 bg-slate-800 text-slate-300 hover:text-blue-500 rounded-lg hover:bg-slate-750 transition flex items-center justify-center shadow-3xs"
                       title="Facebook Link"
                     >
-                      <svg className="w-3 h-3 fill-current" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
                         <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.8c4.56-.93 8-4.96 8-9.8z"/>
                       </svg>
                     </a>
@@ -3084,10 +3193,10 @@ export default function App() {
                       href="https://t.me/laymeancamera"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-slate-400 hover:text-sky-400 transition"
+                      className="p-1.5 bg-slate-800 text-slate-300 hover:text-sky-400 rounded-lg hover:bg-slate-750 transition flex items-center justify-center shadow-3xs"
                       title="Telegram Link"
                     >
-                      <svg className="w-3 h-3 fill-current" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.11.02-1.93 1.23-5.46 3.62-.51.35-.98.53-1.39.51-.46-.01-1.35-.26-2.01-.48-.81-.27-1.46-.42-1.4-.88.03-.24.36-.49.99-.75 3.88-1.69 6.47-2.8 7.77-3.32 3.7-1.49 4.47-1.75 4.97-1.76.11 0 .36.03.52.16.14.11.18.26.19.38 0 .09-.01.27-.02.39z"/>
                       </svg>
                     </a>
@@ -3096,7 +3205,10 @@ export default function App() {
                 <p className="text-[9px] text-slate-400 leading-none mt-0.5">{t('accountLabel')} {userDisplayName} ({currentUser})</p>
               </div>
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-2">
+              {/* Mobile Notification Bell */}
+              <NotificationBell borrowers={borrowers} onSelectBorrower={setSelectedBorrowerId} isMobile={true} />
+
               <button
                 onClick={() => setIsSettingsOpen(true)}
                 className="p-2 bg-slate-850 hover:bg-slate-800 text-amber-400 hover:text-amber-300 rounded-xl transition cursor-pointer border-transparent"
@@ -3301,7 +3413,7 @@ export default function App() {
           // Otherwise, render default ledger content:
           return (
             <>
-              {/* Header Component with stats */}
+              {/* Header Component with stats and notifications */}
               <Header
                 stats={stats}
                 onAddNewClick={() => setIsAddModalOpen(true)}
@@ -3309,6 +3421,8 @@ export default function App() {
                 onImportClick={handleImportBackup}
                 selectedCount={selectedBorrowerIds.length}
                 onBulkAutoCheck={handleBulkAutoCheck}
+                borrowers={borrowers}
+                onSelectBorrower={setSelectedBorrowerId}
               />
 
               {/* Special Member Referral & Sync Panel */}
@@ -3453,99 +3567,7 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Payment Notifications Inline List (Directly Above Borrower Cards) */}
-              {(() => {
-                const dueSoonList = borrowers.filter((b) => {
-                  const dl = getDaysUntilNextPayment(b);
-                  // Starting from tomorrow (daysLeft <= 1)
-                  return dl !== null && dl <= 1;
-                });
 
-                if (dueSoonList.length === 0) return null;
-
-                return (
-                  <div id="payment-notifications-panel" className="bg-amber-50/60 border border-amber-200 rounded-2xl p-4.5 mb-6 space-y-3.5 shadow-xs">
-                    <div className="flex items-center gap-2">
-                      <Bell className="w-4 h-4 text-amber-600 animate-bounce" />
-                      <h3 className="font-bold text-amber-950 text-xs uppercase tracking-wider">{t('notificationsTitle')} ({language === 'kh' ? 'រាប់ចាប់ពីថ្ងៃស្អែកទៅ' : 'Starting from Tomorrow'})</h3>
-                      <span className="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                        {dueSoonList.length}
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {dueSoonList.map((b) => {
-                        const daysLeft = getDaysUntilNextPayment(b);
-                        const isOverdue = daysLeft !== null && daysLeft < 0;
-                        const isToday = daysLeft === 0;
-
-                        // Format status string
-                        let statusText = '';
-                        let statusColorClass = '';
-                        if (isOverdue) {
-                          statusText = t('notificationsOverdue').replace('{days}', String(Math.abs(daysLeft!)));
-                          statusColorClass = 'bg-rose-100 text-rose-800 border-rose-200';
-                        } else if (isToday) {
-                          statusText = t('notificationsDueToday');
-                          statusColorClass = 'bg-amber-500 text-white border-amber-600';
-                        } else {
-                          statusText = language === 'kh' ? 'ត្រូវសងថ្ងៃស្អែក' : 'Due tomorrow';
-                          statusColorClass = 'bg-amber-100 text-amber-800 border-amber-200';
-                        }
-
-                        const totalPaid = Array.isArray(b.payments) ? b.payments.reduce((sum, p) => sum + (p?.amount || 0), 0) : 0;
-                        const remaining = Math.max(0, b.totalToPay - totalPaid);
-
-                        return (
-                          <div
-                            key={`due-soon-item-${b.id}`}
-                            onClick={() => setSelectedBorrowerId(b.id)}
-                            className="bg-white border border-slate-200 hover:border-amber-300 hover:shadow-sm p-3 rounded-xl transition duration-150 cursor-pointer flex flex-col justify-between space-y-2.5 shadow-3xs group"
-                          >
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="truncate">
-                                <h4 className="font-bold text-slate-800 text-xs group-hover:text-blue-600 transition-colors truncate">
-                                  {b.name}
-                                </h4>
-                                {b.phone && (
-                                  <p className="text-[10px] text-slate-400 font-bold truncate">{b.phone}</p>
-                                )}
-                              </div>
-                              <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-md border shrink-0 ${statusColorClass}`}>
-                                {statusText}
-                              </span>
-                            </div>
-
-                            <div className="flex justify-between items-center text-[10px] bg-slate-50 border border-slate-100 p-2 rounded-lg">
-                              <div>
-                                <span className="text-slate-400 block text-[8px] font-bold uppercase">ត្រូវបង់ / Installment</span>
-                                <span className="font-bold text-slate-700">
-                                  {b.installmentAmount.toLocaleString()} {b.currency === 'USD' ? '$' : '៛'}
-                                </span>
-                              </div>
-                              <div className="text-right">
-                                <span className="text-slate-400 block text-[8px] font-bold uppercase">នៅខ្វះ / Remaining</span>
-                                <span className="font-bold text-amber-700">
-                                  {remaining.toLocaleString()} {b.currency === 'USD' ? '$' : '៛'}
-                                </span>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center justify-between text-[9px] pt-0.5">
-                              <span className="text-slate-400 font-medium">
-                                {language === 'kh' ? `ម៉ោង៖ ${b.dueTime || '17:00'}` : `Due: ${b.dueTime || '17:00'}`}
-                              </span>
-                              <span className="text-blue-600 font-bold group-hover:underline flex items-center gap-0.5">
-                                {language === 'kh' ? 'ពិនិត្យមើល' : 'View'} <ChevronRight className="w-3 h-3" />
-                              </span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })()}
 
               {/* Bulk Selection Action Bar */}
               {filteredBorrowers.length > 0 && (

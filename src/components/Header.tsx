@@ -1,8 +1,9 @@
 import React from 'react';
-import { LedgerStats } from '../types';
+import { LedgerStats, Borrower } from '../types';
 import { formatMoney } from '../utils';
 import { DollarSign, Percent, TrendingUp, Users, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '../i18n';
+import NotificationBell from './NotificationBell';
 
 interface HeaderProps {
   stats: LedgerStats;
@@ -11,9 +12,20 @@ interface HeaderProps {
   onImportClick: (e: React.ChangeEvent<HTMLInputElement>) => void;
   selectedCount: number;
   onBulkAutoCheck: () => void;
+  borrowers: Borrower[];
+  onSelectBorrower: (id: string) => void;
 }
 
-export default function Header({ stats, onAddNewClick, onBackupClick, onImportClick, selectedCount, onBulkAutoCheck }: HeaderProps) {
+export default function Header({ 
+  stats, 
+  onAddNewClick, 
+  onBackupClick, 
+  onImportClick, 
+  selectedCount, 
+  onBulkAutoCheck,
+  borrowers,
+  onSelectBorrower
+}: HeaderProps) {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const { t, language, setLanguage } = useLanguage();
 
@@ -57,6 +69,9 @@ export default function Header({ stats, onAddNewClick, onBackupClick, onImportCl
               <span>{t('langEnglish')}</span>
             </button>
           </div>
+
+          {/* Desktop Payment Notification Bell */}
+          <NotificationBell borrowers={borrowers} onSelectBorrower={onSelectBorrower} />
 
           <input
             type="file"

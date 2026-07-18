@@ -31,7 +31,7 @@ export default function BorrowerPortal({ borrower, onBackToLender, isLenderLogge
     logoTextColor: '#FFFFFF',
     logoImageUrl: '',
     portalTitle: 'Luypay Ledger',
-    marqueeText: 'មានទទួលដាក់លុយឈរលុយឆក ចាប់ពី 50$ រហូតដល់ 500$ | Facebook: ឈ្មោះ Pich Rachana',
+    marqueeText: 'មានទទួលដាក់លុយឈរលុយឆក់ ចាប់ពី 50$ រហូតដល់ 500$ | Facebook: ឈ្មោះ Pich Rachana',
     noticeTitle: 'សេចក្តីជូនដំណឹងអំពីគណនេយ្យ',
     noticeText: 'ទំព័រនេះសម្រាប់ត្រួតពិនិត្យសមតុល្យ និងប្រវត្តិសងប្រាក់ផ្ទាល់ខ្លួន។ រាល់ការបង់ប្រាក់ដែលលោកអ្នកបានវេរ ឬប្រគល់ជូន នឹងត្រូវម្ចាស់បំណុលបញ្ជាក់ និងកត់ត្រាចូលក្នុងប្រព័ន្ធនេះភ្លាមៗ។',
     sponsorEnabled: true,
@@ -94,16 +94,16 @@ export default function BorrowerPortal({ borrower, onBackToLender, isLenderLogge
       <div id="portal-marquee-banner" className="bg-amber-500 text-slate-950 font-bold text-xs py-2 shadow-sm border-b border-amber-600/20 select-none shrink-0 z-40 overflow-hidden w-full">
         <div className="animate-marquee-smooth flex">
           <span className="inline-block mr-12 shrink-0">
-            ✨ <span className="font-extrabold text-amber-950">{language === 'kh' ? 'សេចក្តីជូនដំណឹង៖' : 'Announcement:'}</span> {portalConfig.marqueeText || 'មានទទួលដាក់លុយឈរលុយឆក ចាប់ពី 50$ រហូតដល់ 500$'}
+            ✨ <span className="font-extrabold text-amber-950">{language === 'kh' ? 'សេចក្តីជូនដំណឹង៖' : 'Announcement:'}</span> {portalConfig.marqueeText || 'មានទទួលដាក់លុយឈរលុយឆក់ ចាប់ពី 50$ រហូតដល់ 500$'}
           </span>
           <span className="inline-block mr-12 shrink-0">
-            ✨ <span className="font-extrabold text-amber-950">{language === 'kh' ? 'សេចក្តីជូនដំណឹង៖' : 'Announcement:'}</span> {portalConfig.marqueeText || 'មានទទួលដាក់លុយឈរលុយឆក ចាប់ពី 50$ រហូតដល់ 500$'}
+            ✨ <span className="font-extrabold text-amber-950">{language === 'kh' ? 'សេចក្តីជូនដំណឹង៖' : 'Announcement:'}</span> {portalConfig.marqueeText || 'មានទទួលដាក់លុយឈរលុយឆក់ ចាប់ពី 50$ រហូតដល់ 500$'}
           </span>
           <span className="inline-block mr-12 shrink-0">
-            ✨ <span className="font-extrabold text-amber-950">{language === 'kh' ? 'សេចក្តីជូនដំណឹង៖' : 'Announcement:'}</span> {portalConfig.marqueeText || 'មានទទួលដាក់លុយឈរលុយឆក ចាប់ពី 50$ រហូតដល់ 500$'}
+            ✨ <span className="font-extrabold text-amber-950">{language === 'kh' ? 'សេចក្តីជូនដំណឹង៖' : 'Announcement:'}</span> {portalConfig.marqueeText || 'មានទទួលដាក់លុយឈរលុយឆក់ ចាប់ពី 50$ រហូតដល់ 500$'}
           </span>
           <span className="inline-block mr-12 shrink-0">
-            ✨ <span className="font-extrabold text-amber-950">{language === 'kh' ? 'សេចក្តីជូនដំណឹង៖' : 'Announcement:'}</span> {portalConfig.marqueeText || 'មានទទួលដាក់លុយឈរលុយឆក ចាប់ពី 50$ រហូតដល់ 500$'}
+            ✨ <span className="font-extrabold text-amber-950">{language === 'kh' ? 'សេចក្តីជូនដំណឹង៖' : 'Announcement:'}</span> {portalConfig.marqueeText || 'មានទទួលដាក់លុយឈរលុយឆក់ ចាប់ពី 50$ រហូតដល់ 500$'}
           </span>
         </div>
       </div>
